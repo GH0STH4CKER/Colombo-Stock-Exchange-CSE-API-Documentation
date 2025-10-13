@@ -96,6 +96,7 @@ print(response.json())  # Prints the response as a Python dictionary
 This is an **unofficial** reverse-engineered API.  
 If you discover more endpoints or useful parameters, please submit a **Pull Request**!  
 Help expand the community knowledge about the Colombo Stock Exchange API. 🚀
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=FB9KXK4TEAUJ6)
 
 ---
 
