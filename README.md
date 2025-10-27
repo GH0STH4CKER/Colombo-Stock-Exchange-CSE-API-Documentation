@@ -22,7 +22,7 @@ Base URL: `https://www.cse.lk/api/`
 | ----------------------------------------- | -------------------------------------------------- | ----------- | ------------------------------------ |
 | companyInfoSummery                        | Detailed info of a single stock/security by symbol | POST        | symbol                               |
 | tradeSummary                              | Summary of trades for all securities               | POST        |                                      |
-| todaySharePrice                           | Today's share price data                           | POST        | symbol                               |
+| todaySharePrice                           | Today's share price data                           | POST        |                                      |
 | topGainers                                | List of top gaining stocks                         | POST        |                                      |
 | topLooses                                 | List of top losing stocks                          | POST        |                                      |
 | mostActiveTrades                          | Most active trades by volume                       | POST        |                                      |
@@ -32,7 +32,7 @@ Base URL: `https://www.cse.lk/api/`
 | getCOVIDAnnouncements                     | COVID-related announcements                        | POST        |                                      |
 | getFinancialAnnouncement                  | Financial announcements                            | POST        |                                      |
 | circularAnnouncement                      | Circular announcements                             | POST        |                                      |
-| directiveAnnouncement                     | Directive announcements                             | POST        |                                      |
+| directiveAnnouncement                     | Directive announcements                             | POST       |                                      |
 | getNonComplianceAnnouncements             | Non-compliance announcements                       | POST        |                                      |
 | marketStatus                              | Market open/close status                           | POST        |                                      |
 | marketSummery                             | Market summary data                                | POST        |                                      |
