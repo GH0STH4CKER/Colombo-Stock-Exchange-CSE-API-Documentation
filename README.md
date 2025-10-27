@@ -18,30 +18,31 @@ This repository documents some of the known API endpoints, example responses, an
 
 Base URL: `https://www.cse.lk/api/`
 
-| Endpoint                                  | Description                                        | HTTP Method | 
-| ----------------------------------------- | -------------------------------------------------- | ----------- |
-| companyInfoSummery                        | Detailed info of a single stock/security by symbol | POST        |
-| tradeSummary                              | Summary of trades for all securities               | POST        |
-| todaySharePrice                           | Today's share price data                           | POST        |
-| topGainers                                | List of top gaining stocks                         | POST        |
-| topLooses                                 | List of top losing stocks                          | POST        |
-| mostActiveTrades                          | Most active trades by volume                       | POST        |
-| getNewListingsRelatedNoticesAnnouncements | New listings and related announcements             | POST        |
-| getBuyInBoardAnnouncements                | Buy-in board announcements                         | POST        |
-| approvedAnnouncement                      | Approved announcements                             | POST        |
-| getCOVIDAnnouncements                     | COVID-related announcements                        | POST        |
-| getFinancialAnnouncement                  | Financial announcements                            | POST        |
-| circularAnnouncement                      | Circular announcements                             | POST        |
-| directiveAnnouncement                     | Directive announcements                            | POST        |
-| getNonComplianceAnnouncements             | Non-compliance announcements                       | POST        |
-| marketStatus                              | Market open/close status                           | POST        |
-| marketSummery                             | Market summary data                                | POST        |
-| aspiData                                  | All Share Price Index data                         | POST        |
-| snpData                                   | S&P Sri Lanka 20 Index data                        | POST        |
-| chartData                                 | Chart data for stocks                              | POST        |  Required data {chartId":"1","period":"1}
-| allSectors                                | Data for all sectors                               | POST        |
-| detailedTrades                            | Detailed Trades                                    | POST        |
-| dailyMarketSummery                        | Daily Market Summary                               | POST        |
+| Endpoint                                  | Description                                        | HTTP Method | Required Params/Data                  |
+| ----------------------------------------- | -------------------------------------------------- | ----------- | ------------------------------------ |
+| companyInfoSummery                        | Detailed info of a single stock/security by symbol | POST        | symbol                               |
+| tradeSummary                              | Summary of trades for all securities               | POST        |                                      |
+| todaySharePrice                           | Today's share price data                           | POST        | symbol                               |
+| topGainers                                | List of top gaining stocks                         | POST        |                                      |
+| topLooses                                 | List of top losing stocks                          | POST        |                                      |
+| mostActiveTrades                          | Most active trades by volume                       | POST        |                                      |
+| getNewListingsRelatedNoticesAnnouncements | New listings and related announcements             | POST        |                                      |
+| getBuyInBoardAnnouncements                | Buy-in board announcements                         | POST        |                                      |
+| approvedAnnouncement                      | Approved announcements                             | POST        |                                      |
+| getCOVIDAnnouncements                     | COVID-related announcements                        | POST        |                                      |
+| getFinancialAnnouncement                  | Financial announcements                            | POST        |                                      |
+| circularAnnouncement                      | Circular announcements                             | POST        |                                      |
+| directiveAnnouncement                     | Directive announcements                             | POST        |                                      |
+| getNonComplianceAnnouncements             | Non-compliance announcements                       | POST        |                                      |
+| marketStatus                              | Market open/close status                           | POST        |                                      |
+| marketSummery                             | Market summary data                                | POST        |                                      |
+| aspiData                                  | All Share Price Index data                         | POST        |                                      |
+| snpData                                   | S&P Sri Lanka 20 Index data                        | POST        |                                      |
+| chartData                                 | Chart data for stocks                              | POST        | symbol, chartId, period              |
+| allSectors                                | Data for all sectors                               | POST        |                                      |
+| detailedTrades                            | Detailed Trades                                    | POST        |                                      |
+| dailyMarketSummery                        | Daily Market Summary                               | POST        |                                      |
+
 
 ---
 
