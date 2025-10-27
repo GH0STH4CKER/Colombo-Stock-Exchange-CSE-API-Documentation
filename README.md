@@ -18,7 +18,7 @@ This repository documents some of the known API endpoints, example responses, an
 
 Base URL: `https://www.cse.lk/api/`
 
-| Endpoint                                  | Description                                        | HTTP Method |
+| Endpoint                                  | Description                                        | HTTP Method | 
 | ----------------------------------------- | -------------------------------------------------- | ----------- |
 | companyInfoSummery                        | Detailed info of a single stock/security by symbol | POST        |
 | tradeSummary                              | Summary of trades for all securities               | POST        |
@@ -38,7 +38,7 @@ Base URL: `https://www.cse.lk/api/`
 | marketSummery                             | Market summary data                                | POST        |
 | aspiData                                  | All Share Price Index data                         | POST        |
 | snpData                                   | S&P Sri Lanka 20 Index data                        | POST        |
-| chartData                                 | Chart data for stocks                              | POST        |
+| chartData                                 | Chart data for stocks                              | POST        |  Required data {chartId":"1","period":"1}
 | allSectors                                | Data for all sectors                               | POST        |
 | detailedTrades                            | Detailed Trades                                    | POST        |
 | dailyMarketSummery                        | Daily Market Summary                               | POST        |
