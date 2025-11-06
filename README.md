@@ -42,7 +42,7 @@ Base URL: `https://www.cse.lk/api/`
 | allSectors                                | Data for all sectors                               | POST        |                                      |
 | detailedTrades                            | Detailed Trades                                    | POST        |                                      |
 | dailyMarketSummery                        | Daily Market Summary                               | POST        |                                      |
-
+|companyChartDataByStock                    | Company Chart Data By Stock                        | POST        | stockId , period=1                                     |
 
 ---
 
