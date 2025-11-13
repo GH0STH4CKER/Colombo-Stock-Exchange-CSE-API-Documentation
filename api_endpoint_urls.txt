@@ -20,3 +20,4 @@ https://www.cse.lk/api/chartData									                  Chart data for stocks
 https://www.cse.lk/api/allSectors								                    All sector data	
 https://www.cse.lk/api/detailedTrades                                   Detailed Trades
 https://www.cse.lk/api/dailyMarketSummery                               Daily Market Summary
+https://www.cse.lk/api/companyChartDataByStock                              Company Chart Data By Stock 
