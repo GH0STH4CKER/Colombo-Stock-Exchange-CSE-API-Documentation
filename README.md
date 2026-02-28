@@ -43,6 +43,7 @@ Base URL: `https://www.cse.lk/api/`
 | detailedTrades                            | Detailed Trades                                    | POST        |                                      |
 | dailyMarketSummery                        | Daily Market Summary                               | POST        |                                      |
 |companyChartDataByStock                    | Company Chart Data By Stock                        | POST        | stockId , period=1                                     |
+| allSecurityCode                           | Returns a full listing of all securities currently listed on the CSE                                                   | GET        |                                       |
 
 ---
 

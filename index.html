@@ -1,30 +1,117 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CSE API Documentation</title>
-<style>
-  :root{
-    --bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#06b6d4;--glass:rgba(255,255,255,0.03);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071028,#071429);color:#e6eef6;padding:20px}
-  header{text-align:center;margin-bottom:30px}
-  header h1{font-size:28px;margin-bottom:10px;color:#fff}
-  header p{color:var(--muted)}
-  .endpoint{background:var(--card);margin-bottom:16px;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-  .endpoint summary{cursor:pointer;padding:14px;font-size:18px;font-weight:600;background:linear-gradient(90deg,var(--accent),#7c3aed);color:#021}
-  .endpoint summary:hover{filter:brightness(1.1)}
-  .endpoint-content{padding:16px;font-size:14px;line-height:1.5;background:var(--card)}
-  code,pre{background:var(--glass);padding:4px 6px;border-radius:6px;font-family:monospace}
-  pre{display:block;overflow-x:auto;margin-top:6px;padding:12px}
-  table{border-collapse:collapse;width:100%;margin-top:10px}
-  th,td{border:1px solid rgba(255,255,255,0.1);padding:8px;font-size:13px}
-  th{background:rgba(255,255,255,0.05)}
-  img.logo{max-height:60px;margin-top:8px;border-radius:6px;background:#fff;padding:2px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CSE API Documentation</title>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --card: #0b1220;
+      --muted: #9aa4b2;
+      --accent: #06b6d4;
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #071028, #071429);
+      color: #e6eef6;
+      padding: 20px
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #fff
+    }
+
+    header p {
+      color: var(--muted)
+    }
+
+    .endpoint {
+      background: var(--card);
+      margin-bottom: 16px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(2, 6, 23, 0.6)
+    }
+
+    .endpoint summary {
+      cursor: pointer;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      background: linear-gradient(90deg, var(--accent), #7c3aed);
+      color: #021
+    }
+
+    .endpoint summary:hover {
+      filter: brightness(1.1)
+    }
+
+    .endpoint-content {
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      background: var(--card)
+    }
+
+    code,
+    pre {
+      background: var(--glass);
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-family: monospace
+    }
+
+    pre {
+      display: block;
+      overflow-x: auto;
+      margin-top: 6px;
+      padding: 12px
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px
+    }
+
+    th,
+    td {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px;
+      font-size: 13px
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.05)
+    }
+
+    img.logo {
+      max-height: 60px;
+      margin-top: 8px;
+      border-radius: 6px;
+      background: #fff;
+      padding: 2px
+    }
+  </style>
 </head>
+
 <body>
   <header>
     <h1>Colombo Stock Exchange API — Documentation</h1>
@@ -33,50 +120,161 @@
   </header>
 
   <section>
-    <details class="endpoint"><summary>companyInfoSummery</summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/companyInfoSummery</code></p><p><strong>Parameters:</strong> <code>symbol</code> (string, required)</p><p><strong>Example Response:</strong></p><pre>{
+    <details class="endpoint">
+      <summary>companyInfoSummery</summary>
+      <div class="endpoint-content">
+        <p><strong>URL:</strong> <code>https://www.cse.lk/api/companyInfoSummery</code></p>
+        <p><strong>Parameters:</strong> <code>symbol</code> (string, required)</p>
+        <p><strong>Example Response:</strong></p>
+        <pre>{
   "reqLogo": {"path": "upload_logo/378_1601611239.jpeg"},
   "reqSymbolInfo": {"symbol": "LOLC.N0000", "name": "L O L C HOLDINGS PLC", ...}
-}</pre><p><strong>Logo:</strong></p><img class="logo" src="https://cdn.cse.lk/cmt/upload_logo/378_1601611239.jpeg" alt="Company Logo"></div></details>
+}</pre>
+        <p><strong>Logo:</strong></p><img class="logo" src="https://cdn.cse.lk/cmt/upload_logo/378_1601611239.jpeg"
+          alt="Company Logo">
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>tradeSummary</summary><div class="endpoint-content"><pre>{"reqTradeSummery": [{"symbol": "ABAN.N0000", "price": 579.75, ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>tradeSummary</summary>
+      <div class="endpoint-content">
+        <pre>{"reqTradeSummery": [{"symbol": "ABAN.N0000", "price": 579.75, ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>todaySharePrice</summary><div class="endpoint-content"><pre>[{"symbol": "ABAN.N0000", "lastTradedPrice": 579.75, ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>todaySharePrice</summary>
+      <div class="endpoint-content">
+        <pre>[{"symbol": "ABAN.N0000", "lastTradedPrice": 579.75, ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>topGainers</summary><div class="endpoint-content"><pre>[{"symbol": "HEXP.N0000", "changePercentage": 15.86, ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>topGainers</summary>
+      <div class="endpoint-content">
+        <pre>[{"symbol": "HEXP.N0000", "changePercentage": 15.86, ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>topLooses</summary><div class="endpoint-content"><pre>[{"symbol": "TESS.X0000", "changePercentage": -10.0, ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>topLooses</summary>
+      <div class="endpoint-content">
+        <pre>[{"symbol": "TESS.X0000", "changePercentage": -10.0, ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>mostActiveTrades</summary><div class="endpoint-content"><pre>[{"symbol": "KZOO.N0000", "tradeVolume": 1102.0, ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>mostActiveTrades</summary>
+      <div class="endpoint-content">
+        <pre>[{"symbol": "KZOO.N0000", "tradeVolume": 1102.0, ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>getNewListingsRelatedNoticesAnnouncements</summary><div class="endpoint-content"><pre>{"newListingRelatedAnnouncements": [{"company": "COMMERCIAL BANK OF CEYLON PLC", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>getNewListingsRelatedNoticesAnnouncements</summary>
+      <div class="endpoint-content">
+        <pre>{"newListingRelatedAnnouncements": [{"company": "COMMERCIAL BANK OF CEYLON PLC", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>getBuyInBoardAnnouncements</summary><div class="endpoint-content"><pre>{"buyInBoardAnnouncements": [{"company": "TRADING AND MARKET SURVEILLANCE", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>getBuyInBoardAnnouncements</summary>
+      <div class="endpoint-content">
+        <pre>{"buyInBoardAnnouncements": [{"company": "TRADING AND MARKET SURVEILLANCE", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>approvedAnnouncement</summary><div class="endpoint-content"><pre>{"approvedAnnouncements": [{"company": "LANKEM DEVELOPMENTS PLC", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>approvedAnnouncement</summary>
+      <div class="endpoint-content">
+        <pre>{"approvedAnnouncements": [{"company": "LANKEM DEVELOPMENTS PLC", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>getCOVIDAnnouncements</summary><div class="endpoint-content"><pre>{"covidAnnouncements": [{"company": "LANKA MILK FOODS (CWE) PLC", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>getCOVIDAnnouncements</summary>
+      <div class="endpoint-content">
+        <pre>{"covidAnnouncements": [{"company": "LANKA MILK FOODS (CWE) PLC", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>getFinancialAnnouncement</summary><div class="endpoint-content"><pre>{"reqFinancialAnnouncemnets": [{"symbol": "LDEV", "fileText": "Annual Report 2024/2025", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>getFinancialAnnouncement</summary>
+      <div class="endpoint-content">
+        <pre>{"reqFinancialAnnouncemnets": [{"symbol": "LDEV", "fileText": "Annual Report 2024/2025", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>circularAnnouncement</summary><div class="endpoint-content"><pre>{"reqCircularAnnouncement": [{"fileText": "EMPLOYEE SHARE OPTION SCHEMES", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>circularAnnouncement</summary>
+      <div class="endpoint-content">
+        <pre>{"reqCircularAnnouncement": [{"fileText": "EMPLOYEE SHARE OPTION SCHEMES", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>directiveAnnouncement</summary><div class="endpoint-content"><pre>{"reqDirectiveAnnouncement": [{"fileText": "DIRECTIVE ISSUED ...", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>directiveAnnouncement</summary>
+      <div class="endpoint-content">
+        <pre>{"reqDirectiveAnnouncement": [{"fileText": "DIRECTIVE ISSUED ...", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>getNonComplianceAnnouncements</summary><div class="endpoint-content"><pre>{"nonComplianceAnnouncements": [{"company": "BROWNS BEACH HOTELS PLC", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>getNonComplianceAnnouncements</summary>
+      <div class="endpoint-content">
+        <pre>{"nonComplianceAnnouncements": [{"company": "BROWNS BEACH HOTELS PLC", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>marketStatus</summary><div class="endpoint-content"><pre>{"status": "Market Closed"}</pre></div></details>
+    <details class="endpoint">
+      <summary>marketStatus</summary>
+      <div class="endpoint-content">
+        <pre>{"status": "Market Closed"}</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>marketSummery</summary><div class="endpoint-content"><pre>{"tradeVolume": 3263762020.0, "shareVolume": 115084307, ...}</pre></div></details>
+    <details class="endpoint">
+      <summary>marketSummery</summary>
+      <div class="endpoint-content">
+        <pre>{"tradeVolume": 3263762020.0, "shareVolume": 115084307, ...}</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>aspiData</summary><div class="endpoint-content"><pre>{"value": 19826.57, "change": 21.77, ...}</pre></div></details>
+    <details class="endpoint">
+      <summary>aspiData</summary>
+      <div class="endpoint-content">
+        <pre>{"value": 19826.57, "change": 21.77, ...}</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>snpData</summary><div class="endpoint-content"><pre>{"value": 5825.39, "change": -2.46, ...}</pre></div></details>
+    <details class="endpoint">
+      <summary>snpData</summary>
+      <div class="endpoint-content">
+        <pre>{"value": 5825.39, "change": -2.46, ...}</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>chartData</summary><div class="endpoint-content"><p>Requires <code>symbol</code> but may return HTTP 400 for some values.</p></div></details>
+    <details class="endpoint">
+      <summary>chartData</summary>
+      <div class="endpoint-content">
+        <p>Requires <code>symbol</code> but may return HTTP 400 for some values.</p>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>allSectors</summary><div class="endpoint-content"><pre>[{"symbol": "EGY", "indexName": "S&P/CSE Energy Industry Group Index", ...}]</pre></div></details>
+    <details class="endpoint">
+      <summary>allSectors</summary>
+      <div class="endpoint-content">
+        <pre>[{"symbol": "EGY", "indexName": "S&P/CSE Energy Industry Group Index", ...}]</pre>
+      </div>
+    </details>
 
-    <details class="endpoint"><summary>Detailed Trades</summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/detailedTrades</code></p><p><strong>Parameters:</strong> <code>symbol</code> (string, not required)</p><p><strong>Example Response:</strong></p><pre>
+    <details class="endpoint">
+      <summary>Detailed Trades</summary>
+      <div class="endpoint-content">
+        <p><strong>URL:</strong> <code>https://www.cse.lk/api/detailedTrades</code></p>
+        <p><strong>Parameters:</strong> <code>symbol</code> (string, not required)</p>
+        <p><strong>Example Response:</strong></p>
+        <pre>
     {
       "reqDetailTrades": [
           {
@@ -138,7 +336,23 @@
       ],
     ]
     </details>
-    <details class="endpoint"><summary>companyChartDataByStock</summary><div class="endpoint-content"><pre>{"reqTradeSummery": {'chartData': [{'h': 562.0, 'l': 562.0, 'o': None, 's': 51866050, 'q': 32, 'p': 562.0, 'c': 1.75, 'pc': 0.31236055332440876, 't': 1762401600377, 'n': None, 'id': 51866050}, ...}]}</pre></div></details>
+    <details class="endpoint"><summary>companyChartDataByStock</summary><div class="endpoint-content"><pre>{"reqTradeSummery": {'chartData': [{'h': 562.0, 'l': 562.0, 'o': None, 's': 51866050, 'q': 32, 'p': 562.0, 'c': 1.75, 'pc': 0.31236055332440876, 't': 1762401600377, 'n': None, 'id': 51866050}, ...}]}</pre>
+      </div>
+    </details>
+    <details class="endpoint">
+      <summary>allSecurityCode</summary>
+      <div class="endpoint-content">
+        <pre>[
+  { "id": 204,  "name": "ABANS ELECTRICALS PLC",          "symbol": "ABAN.N0000" },
+  { "id": 1845, "name": "ABANS FINANCE PLC",              "symbol": "AFSL.N0000" },
+  { "id": 2065, "name": "ACCESS ENGINEERING PLC",         "symbol": "AEL.N0000" },
+  { "id": 472,  "name": "ACL CABLES PLC",                 "symbol": "ACL.N0000" },
+  { "id": 406,  "name": "ACL PLASTICS PLC",               "symbol": "APLA.N0000" },
+  { "id": 554,  "name": "ACME PRINTING & PACKAGING PLC",  "symbol": "ACME.N0000" },
+  { "id": 163,  "name": "AGALAWATTE PLANTATIONS PLC",     "symbol": "AGAL.N0000" },...]</pre>
+      </div>
+    </details>
   </section>
 </body>
+
 </html>
