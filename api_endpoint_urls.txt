@@ -21,3 +21,4 @@ https://www.cse.lk/api/allSectors								                    All sector data
 https://www.cse.lk/api/detailedTrades                                   Detailed Trades
 https://www.cse.lk/api/dailyMarketSummery                               Daily Market Summary
 https://www.cse.lk/api/companyChartDataByStock                              Company Chart Data By Stock 
+https://www.cse.lk/api/allSecurityCode                                  Returns a full listing of all securities currently listed on the CSE

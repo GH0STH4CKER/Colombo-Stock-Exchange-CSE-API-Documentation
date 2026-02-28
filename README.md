@@ -43,7 +43,7 @@ Base URL: `https://www.cse.lk/api/`
 | detailedTrades                            | Detailed Trades                                    | POST        |                                      |
 | dailyMarketSummery                        | Daily Market Summary                               | POST        |                                      |
 |companyChartDataByStock                    | Company Chart Data By Stock                        | POST        | stockId , period=1                                     |
-
+|allSecurityCode                            | Returns a full listing of all securities currently listed on the CSE                        | GET        |         |
 ---
 
 visit <a href='https://github.com/GH0STH4CKER/Colombo-Stock-Exchange-CSE-API-Documentation/blob/main/api_endpoint_urls.txt'>this link</a> to view all complete endpoint urls.
