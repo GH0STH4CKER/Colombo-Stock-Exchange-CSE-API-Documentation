@@ -9,136 +9,1654 @@
     --bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#06b6d4;--glass:rgba(255,255,255,0.03);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071028,#071429);color:#e6eef6;padding:20px}
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071028,#071429);color:#e6eef6;padding:20px;max-width:1100px;margin:0 auto}
   header{text-align:center;margin-bottom:30px}
   header h1{font-size:28px;margin-bottom:10px;color:#fff}
-  header p{color:var(--muted)}
-  .endpoint{background:var(--card);margin-bottom:16px;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-  .endpoint summary{cursor:pointer;padding:14px;font-size:18px;font-weight:600;background:linear-gradient(90deg,var(--accent),#7c3aed);color:#021}
+  header p{color:var(--muted);margin-bottom:4px}
+  h2{font-size:20px;margin:28px 0 12px;color:#fff;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:6px}
+  .search{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:var(--card);color:#e6eef6;font-size:15px;margin-top:14px}
+  .endpoint{background:var(--card);margin-bottom:12px;border-radius:12px;overflow:hidden;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+  .endpoint summary{cursor:pointer;padding:12px 14px;font-size:17px;font-weight:600;background:linear-gradient(90deg,var(--accent),#7c3aed);color:#021;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
   .endpoint summary:hover{filter:brightness(1.1)}
-  .endpoint-content{padding:16px;font-size:14px;line-height:1.5;background:var(--card)}
-  code,pre{background:var(--glass);padding:4px 6px;border-radius:6px;font-family:monospace}
-  pre{display:block;overflow-x:auto;margin-top:6px;padding:12px}
+  .ep{word-break:break-all}
+  .m{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.03em}
+  .m-post{background:#021;color:#5eead4}
+  .m-get{background:#021;color:#93c5fd}
+  .endpoint-content{padding:16px;font-size:14px;line-height:1.6;background:var(--card)}
+  .endpoint-content p{margin-bottom:6px}
+  code,pre{background:var(--glass);padding:2px 6px;border-radius:6px;font-family:ui-monospace,Consolas,monospace;word-break:break-word}
+  pre{display:block;overflow-x:auto;margin-top:6px;padding:12px;font-size:12.5px;word-break:normal}
   table{border-collapse:collapse;width:100%;margin-top:10px}
-  th,td{border:1px solid rgba(255,255,255,0.1);padding:8px;font-size:13px}
+  .table-wrap{overflow-x:auto}
+  th,td{border:1px solid rgba(255,255,255,0.1);padding:8px;font-size:13px;text-align:left;vertical-align:top}
   th{background:rgba(255,255,255,0.05)}
+  .panel{background:var(--card);border-radius:12px;padding:16px;font-size:14px;line-height:1.6;margin-bottom:12px}
+  .panel p{margin-bottom:8px}
   img.logo{max-height:60px;margin-top:8px;border-radius:6px;background:#fff;padding:2px}
+  a{color:var(--accent)}
 </style>
 </head>
 <body>
   <header>
     <h1>Colombo Stock Exchange API — Documentation</h1>
-    <p>Base URL: <code>https://www.cse.lk/api/</code></p>
-    <p>All endpoints use <strong>POST</strong> requests with <code>application/x-www-form-urlencoded</code> data.</p>
+    <p>Base URL: <code>https://www.cse.lk/api/</code> · 93 public data endpoints · example responses show structure only, with placeholder values</p>
+    <p>Unofficial, reverse-engineered from the <a href="https://www.cse.lk/">cse.lk</a> website. Endpoints may change without notice.</p>
+    <input class="search" id="q" type="search" placeholder="Filter endpoints…" aria-label="Filter endpoints">
   </header>
 
+  <h2>Request formats</h2>
+  <div class="panel">
+    <p>Endpoints without parameters accept a plain <code>POST</code> (or <code>GET</code>) with an empty body.</p>
+    <p>For endpoints with parameters, send the body in the format listed on each endpoint:</p>
+    <div class="table-wrap"><table>
+      <tr><th>Body</th><th>Content-Type</th><th>Python <code>requests</code></th></tr>
+      <tr><td>form</td><td><code>application/x-www-form-urlencoded</code></td><td><code>requests.post(url, data={...})</code></td></tr>
+      <tr><td>multipart</td><td><code>multipart/form-data</code></td><td><code>requests.post(url, data={...})</code> also works</td></tr>
+      <tr><td>json</td><td><code>application/json</code></td><td><code>requests.post(url, json={...})</code></td></tr>
+      <tr><td>query</td><td>— (GET)</td><td><code>requests.get(url, params={...})</code></td></tr>
+    </table></div>
+    <p>Endpoints the website calls with <code>multipart/form-data</code> also accept <code>application/x-www-form-urlencoded</code>. Only the <em>json</em> endpoints (<code>boardReason</code>, <code>smd</code>, <code>debtDetailTrades</code>) need a JSON body.</p>
+    <p>Logos and files: prefix <code>logoUrl</code> / <code>path</code> values with <code>https://cdn.cse.lk/cmt/</code> (logos) or <code>https://cdn.cse.lk/</code> (reports and PDFs).</p>
+  </div>
+
+  <h2>Market Overview</h2>
   <section>
-    <details class="endpoint"><summary>companyInfoSummery</summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/companyInfoSummery</code></p><p><strong>Parameters:</strong> <code>symbol</code> (string, required)</p><p><strong>Example Response:</strong></p><pre>{
-  "reqLogo": {"path": "upload_logo/378_1601611239.jpeg"},
-  "reqSymbolInfo": {"symbol": "LOLC.N0000", "name": "L O L C HOLDINGS PLC", ...}
-}</pre><p><strong>Logo:</strong></p><img class="logo" src="https://cdn.cse.lk/cmt/upload_logo/378_1601611239.jpeg" alt="Company Logo"></div></details>
-
-    <details class="endpoint"><summary>tradeSummary</summary><div class="endpoint-content"><pre>{"reqTradeSummery": [{"symbol": "ABAN.N0000", "price": 579.75, ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>todaySharePrice</summary><div class="endpoint-content"><pre>[{"symbol": "ABAN.N0000", "lastTradedPrice": 579.75, ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>topGainers</summary><div class="endpoint-content"><pre>[{"symbol": "HEXP.N0000", "changePercentage": 15.86, ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>topLooses</summary><div class="endpoint-content"><pre>[{"symbol": "TESS.X0000", "changePercentage": -10.0, ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>mostActiveTrades</summary><div class="endpoint-content"><pre>[{"symbol": "KZOO.N0000", "tradeVolume": 1102.0, ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>getNewListingsRelatedNoticesAnnouncements</summary><div class="endpoint-content"><pre>{"newListingRelatedAnnouncements": [{"company": "COMMERCIAL BANK OF CEYLON PLC", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>getBuyInBoardAnnouncements</summary><div class="endpoint-content"><pre>{"buyInBoardAnnouncements": [{"company": "TRADING AND MARKET SURVEILLANCE", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>approvedAnnouncement</summary><div class="endpoint-content"><pre>{"approvedAnnouncements": [{"company": "LANKEM DEVELOPMENTS PLC", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>getCOVIDAnnouncements</summary><div class="endpoint-content"><pre>{"covidAnnouncements": [{"company": "LANKA MILK FOODS (CWE) PLC", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>getFinancialAnnouncement</summary><div class="endpoint-content"><pre>{"reqFinancialAnnouncemnets": [{"symbol": "LDEV", "fileText": "Annual Report 2024/2025", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>circularAnnouncement</summary><div class="endpoint-content"><pre>{"reqCircularAnnouncement": [{"fileText": "EMPLOYEE SHARE OPTION SCHEMES", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>directiveAnnouncement</summary><div class="endpoint-content"><pre>{"reqDirectiveAnnouncement": [{"fileText": "DIRECTIVE ISSUED ...", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>getNonComplianceAnnouncements</summary><div class="endpoint-content"><pre>{"nonComplianceAnnouncements": [{"company": "BROWNS BEACH HOTELS PLC", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>marketStatus</summary><div class="endpoint-content"><pre>{"status": "Market Closed"}</pre></div></details>
-
-    <details class="endpoint"><summary>marketSummery</summary><div class="endpoint-content"><pre>{"tradeVolume": 3263762020.0, "shareVolume": 115084307, ...}</pre></div></details>
-
-    <details class="endpoint"><summary>aspiData</summary><div class="endpoint-content"><pre>{"value": 19826.57, "change": 21.77, ...}</pre></div></details>
-
-    <details class="endpoint"><summary>snpData</summary><div class="endpoint-content"><pre>{"value": 5825.39, "change": -2.46, ...}</pre></div></details>
-
-    <details class="endpoint"><summary>chartData</summary><div class="endpoint-content"><p>Requires <code>symbol</code> but may return HTTP 400 for some values.</p></div></details>
-
-    <details class="endpoint"><summary>allSectors</summary><div class="endpoint-content"><pre>[{"symbol": "EGY", "indexName": "S&P/CSE Energy Industry Group Index", ...}]</pre></div></details>
-
-    <details class="endpoint"><summary>Detailed Trades</summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/detailedTrades</code></p><p><strong>Parameters:</strong> <code>symbol</code> (string, not required)</p><p><strong>Example Response:</strong></p><pre>
+    <details class="endpoint" data-name="marketstatus"><summary><span class="ep">marketStatus</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/marketStatus</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Market open/close status (e.g. Regular Trading, Market Closed)</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;&lt;status&gt;&quot;
+}</pre></div></details>
+    <details class="endpoint" data-name="marketsummery"><summary><span class="ep">marketSummery</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/marketSummery</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Market summary for the day (turnover, share volume, trades)</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;id&quot;: 0,
+  &quot;tradeVolume&quot;: 0.0,
+  &quot;shareVolume&quot;: 0,
+  &quot;tradeDate&quot;: 1700000000000,
+  &quot;trades&quot;: 0
+}</pre></div></details>
+    <details class="endpoint" data-name="dailymarketsummery"><summary><span class="ep">dailyMarketSummery</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/dailyMarketSummery</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Daily market summary (turnover, foreign/domestic split, PER, PBV, DY, indices)</p><p><strong>Example Response:</strong></p><pre>[
+  [
     {
-      "reqDetailTrades": [
-          {
-              "id": 204,
-              "securityId": null,
-              "name": "ABANS ELECTRICALS PLC",
-              "symbol": "ABAN.N0000",
-              "price": 585.0,
-              "qty": 562,
-              "trades": 7,
-              "change": 29.0,
-              "changePercentage": 5.215827338129497
-          },
-        ]
-      }</details>
-
-    <details class="endpoint"><summary>Daily Market Summary</summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/dailyMarketSummery</code></p><p><strong>Parameters:</strong> None</p><p><strong>Example Response:</strong></p><pre>
-    [
-      [
+      &quot;id&quot;: 0,
+      &quot;tradeDate&quot;: 1700000000000,
+      &quot;marketTurnover&quot;: 0.0,
+      &quot;marketTrades&quot;: 0.0,
+      &quot;marketDomestic&quot;: 0.0,
+      &quot;marketForeign&quot;: 0.0,
+      &quot;equityTurnover&quot;: 0.0,
+      &quot;equityDomesticPurchase&quot;: 0.0,
+      &quot;equityDomesticSales&quot;: 0.0,
+      &quot;equityForeignPurchase&quot;: 0.0,
+      &quot;equityForeignSales&quot;: 0.0,
+      &quot;volumeOfTurnOverNumber&quot;: 0.0,
+      &quot;volumeOfTurnoverDomestic&quot;: 0.0,
+      &quot;volumeOfTurnoverForeign&quot;: 0,
+      &quot;tradesNo&quot;: 0,
+      &quot;tradesNoDomestic&quot;: 0,
+      &quot;tradesNoForeign&quot;: 0,
+      &quot;listedCompanyNumber&quot;: 0,
+      &quot;tradeCompanyNumber&quot;: 0,
+      &quot;marketCap&quot;: 0.0,
+      &quot;cdsHoldingsTotal&quot;: 0.0,
+      &quot;cdsHoldingsDomestic&quot;: 0.0,
+      &quot;cdsHoldingsForeign&quot;: 0.0,
+      &quot;cdsMarketValueTotal&quot;: 0.0,
+      &quot;cdsMarketValueDomestic&quot;: 0.0,
+      &quot;cdsMarketValueForeign&quot;: 0.0,
+      &quot;corporateDebtValue&quot;: 0.0,
+      &quot;governmentDebtValue&quot;: 0.0,
+      &quot;asi&quot;: 0.0,
+      &quot;mpi&quot;: null,
+      &quot;spp&quot;: 0.0,
+      &quot;triasi&quot;: 0.0,
+      &quot;trimpi&quot;: null,
+      &quot;spt&quot;: 0.0,
+      &quot;per&quot;: 0.0,
+      &quot;pbv&quot;: 0.0,
+      &quot;dy&quot;: 0.0
+    }
+  ]
+]</pre></div></details>
+    <details class="endpoint" data-name="lastupdatetime"><summary><span class="ep">lastUpdateTime</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/lastUpdateTime</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Timestamp of the last market data update</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;id&quot;: 0,
+  &quot;lastUpdatedTime&quot;: 1700000000000
+}</pre></div></details>
+    <details class="endpoint" data-name="previousupdatetime"><summary><span class="ep">previousUpdateTime</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/previousUpdateTime</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Previous trading date</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;id&quot;: 0,
+  &quot;previousDate&quot;: &quot;YYYY-MM-DD hh:mm:ss&quot;
+}</pre></div></details>
+    <details class="endpoint" data-name="csedaily"><summary><span class="ep">cseDaily</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/cseDaily</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>CSE daily market reports (PDF paths on cdn.cse.lk)</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqCseDaily&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;uploaded_date&quot;: 1700000000000,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;sec_id&quot;: null,
+      &quot;width&quot;: null,
+      &quot;height&quot;: null,
+      &quot;file_size&quot;: null,
+      &quot;catagory&quot;: null,
+      &quot;type&quot;: null,
+      &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+      &quot;edited&quot;: 0,
+      &quot;deleted&quot;: 0,
+      &quot;deleted_date&quot;: null,
+      &quot;report_type&quot;: 0,
+      &quot;manual_date&quot;: 1700000000000
+    }
+  ],
+  &quot;reqCseDailyLatest&quot;: {
+    &quot;id&quot;: 0,
+    &quot;uploaded_date&quot;: 1700000000000,
+    &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+    &quot;sec_id&quot;: null,
+    &quot;width&quot;: null,
+    &quot;height&quot;: null,
+    &quot;file_size&quot;: null,
+    &quot;catagory&quot;: null,
+    &quot;type&quot;: null,
+    &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+    &quot;edited&quot;: 0,
+    &quot;deleted&quot;: 0,
+    &quot;deleted_date&quot;: null,
+    &quot;report_type&quot;: 0,
+    &quot;manual_date&quot;: 1700000000000
+  }
+}</pre></div></details>
+    <details class="endpoint" data-name="csedailynew"><summary><span class="ep">cseDailyNew</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/cseDailyNew</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Latest CSE daily market report</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqCseDailyLatestNew&quot;: {
+    &quot;id&quot;: 0,
+    &quot;uploaded_date&quot;: 1700000000000,
+    &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+    &quot;sec_id&quot;: null,
+    &quot;width&quot;: null,
+    &quot;height&quot;: null,
+    &quot;file_size&quot;: null,
+    &quot;catagory&quot;: null,
+    &quot;type&quot;: null,
+    &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+    &quot;edited&quot;: 0,
+    &quot;deleted&quot;: 0,
+    &quot;deleted_date&quot;: null,
+    &quot;report_type&quot;: 0,
+    &quot;manual_date&quot;: 1700000000000
+  },
+  &quot;reqCseDailyNew&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;uploaded_date&quot;: 1700000000000,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;sec_id&quot;: null,
+      &quot;width&quot;: null,
+      &quot;height&quot;: null,
+      &quot;file_size&quot;: null,
+      &quot;catagory&quot;: null,
+      &quot;type&quot;: null,
+      &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+      &quot;edited&quot;: 0,
+      &quot;deleted&quot;: 0,
+      &quot;deleted_date&quot;: null,
+      &quot;report_type&quot;: 0,
+      &quot;manual_date&quot;: 1700000000000
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="cseweekly"><summary><span class="ep">cseWeekly</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/cseWeekly</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>CSE weekly market reports</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqCseWeekly&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;uploaded_date&quot;: 1700000000000,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;sec_id&quot;: null,
+      &quot;width&quot;: null,
+      &quot;height&quot;: null,
+      &quot;file_size&quot;: null,
+      &quot;catagory&quot;: null,
+      &quot;type&quot;: null,
+      &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+      &quot;edited&quot;: 0,
+      &quot;deleted&quot;: 0,
+      &quot;deleted_date&quot;: null,
+      &quot;report_type&quot;: 0,
+      &quot;manual_date&quot;: 1700000000000
+    }
+  ],
+  &quot;reqCseWeeklyLatest&quot;: {
+    &quot;id&quot;: 0,
+    &quot;uploaded_date&quot;: 1700000000000,
+    &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+    &quot;sec_id&quot;: null,
+    &quot;width&quot;: null,
+    &quot;height&quot;: null,
+    &quot;file_size&quot;: null,
+    &quot;catagory&quot;: null,
+    &quot;type&quot;: null,
+    &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+    &quot;edited&quot;: 0,
+    &quot;deleted&quot;: 0,
+    &quot;deleted_date&quot;: null,
+    &quot;report_type&quot;: 0,
+    &quot;manual_date&quot;: 1700000000000
+  }
+}</pre></div></details>
+    <details class="endpoint" data-name="csemonthly"><summary><span class="ep">cseMonthly</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/cseMonthly</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Latest CSE monthly market report</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqCseMonthlyLatest&quot;: {
+    &quot;id&quot;: 0,
+    &quot;uploaded_date&quot;: 1700000000000,
+    &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+    &quot;sec_id&quot;: null,
+    &quot;width&quot;: null,
+    &quot;height&quot;: null,
+    &quot;file_size&quot;: null,
+    &quot;catagory&quot;: null,
+    &quot;type&quot;: null,
+    &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+    &quot;edited&quot;: 0,
+    &quot;deleted&quot;: 0,
+    &quot;deleted_date&quot;: null,
+    &quot;report_type&quot;: 0,
+    &quot;manual_date&quot;: 1700000000000
+  },
+  &quot;reqCseMonthly&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;uploaded_date&quot;: 1700000000000,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;sec_id&quot;: null,
+      &quot;width&quot;: null,
+      &quot;height&quot;: null,
+      &quot;file_size&quot;: null,
+      &quot;catagory&quot;: null,
+      &quot;type&quot;: null,
+      &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+      &quot;edited&quot;: 0,
+      &quot;deleted&quot;: 0,
+      &quot;deleted_date&quot;: null,
+      &quot;report_type&quot;: 0,
+      &quot;manual_date&quot;: 1700000000000
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="quarterlysummary"><summary><span class="ep">quarterlySummary</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/quarterlySummary</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>CSE quarterly market reports</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqCseQuarterly&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;uploaded_date&quot;: 1700000000000,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;sec_id&quot;: null,
+      &quot;width&quot;: null,
+      &quot;height&quot;: null,
+      &quot;file_size&quot;: null,
+      &quot;catagory&quot;: null,
+      &quot;type&quot;: null,
+      &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+      &quot;edited&quot;: 0,
+      &quot;deleted&quot;: 0,
+      &quot;deleted_date&quot;: null,
+      &quot;report_type&quot;: 0,
+      &quot;manual_date&quot;: 1700000000000
+    }
+  ],
+  &quot;reqCseQuarterlyLatest&quot;: {
+    &quot;id&quot;: 0,
+    &quot;uploaded_date&quot;: 1700000000000,
+    &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+    &quot;sec_id&quot;: null,
+    &quot;width&quot;: null,
+    &quot;height&quot;: null,
+    &quot;file_size&quot;: null,
+    &quot;catagory&quot;: null,
+    &quot;type&quot;: null,
+    &quot;file_text&quot;: &quot;&lt;file_text&gt;&quot;,
+    &quot;edited&quot;: 0,
+    &quot;deleted&quot;: 0,
+    &quot;deleted_date&quot;: null,
+    &quot;report_type&quot;: 0,
+    &quot;manual_date&quot;: 1700000000000
+  }
+}</pre></div></details>
+  </section>
+  <h2>Securities &amp; Trades</h2>
+  <section>
+    <details class="endpoint" data-name="companyinfosummery"><summary><span class="ep">companyInfoSummery</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/companyInfoSummery</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> symbol</p><p>Detailed info of a single stock/security by symbol</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqSymbolBetaInfo&quot;: {
+    &quot;securityId&quot;: 0,
+    &quot;triASIBetaValue&quot;: 0.0,
+    &quot;betaValueSPSL&quot;: 0.0,
+    &quot;triASIBetaPeriod&quot;: &quot;2026&quot;,
+    &quot;quarter&quot;: 0
+  },
+  &quot;reqTagsLogo&quot;: null,
+  &quot;reqLogo&quot;: {
+    &quot;id&quot;: 0,
+    &quot;path&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+    &quot;secId&quot;: 0
+  },
+  &quot;reqSymbolInfo&quot;: {
+    &quot;id&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+    &quot;issueDate&quot;: &quot;&lt;issueDate&gt;&quot;,
+    &quot;quantityIssued&quot;: 0,
+    &quot;parValue&quot;: 0.0,
+    &quot;issuedPrice&quot;: null,
+    &quot;lastTradedPrice&quot;: 0.0,
+    &quot;wtdHiPrice&quot;: 0.0,
+    &quot;mtdHiPrice&quot;: 0.0,
+    &quot;ytdHiPrice&quot;: 0.0,
+    &quot;p12HiPrice&quot;: 0.0,
+    &quot;allHiPrice&quot;: 0.0,
+    &quot;allLowPrice&quot;: 0.0,
+    &quot;wtdLowPrice&quot;: 0.0,
+    &quot;mtdLowPrice&quot;: 0.0,
+    &quot;ytdLowPrice&quot;: 0.0,
+    &quot;p12LowPrice&quot;: 0.0,
+    &quot;tdyShareVolume&quot;: 0,
+    &quot;wdyShareVolume&quot;: 0,
+    &quot;mtdShareVolume&quot;: 0,
+    &quot;ytdShareVolume&quot;: 0,
+    &quot;p12ShareVolume&quot;: 0,
+    &quot;tdyTradeVolume&quot;: 0,
+    &quot;wtdTradeVolume&quot;: null,
+    &quot;mtdTradeVolume&quot;: null,
+    &quot;ytdTradeVolume&quot;: null,
+    &quot;p12TradeVolume&quot;: null,
+    &quot;tdyTurnover&quot;: 0.0,
+    &quot;wtdTurnover&quot;: 0.0,
+  ...</pre><p><strong>Logo:</strong> prefix <code>reqLogo.path</code> with <code>https://cdn.cse.lk/cmt/</code></p><img class="logo" src="https://cdn.cse.lk/cmt/upload_logo/378_1601611239.jpeg" alt="Company Logo"></div></details>
+    <details class="endpoint" data-name="homecompanydata"><summary><span class="ep">homeCompanyData</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/homeCompanyData</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> symbol</p><p>Price snapshot of one security. The returned id is the stockId used by companyChartDataByStock</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;id&quot;: 0,
+  &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+  &quot;price&quot;: 0.0,
+  &quot;change&quot;: 0.0,
+  &quot;changePercentage&quot;: 0.0
+}</pre></div></details>
+    <details class="endpoint" data-name="tradesummary"><summary><span class="ep">tradeSummary</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/tradeSummary</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Summary of trades for all securities</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqTradeSummery&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;quantity&quot;: 0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;price&quot;: 0.0,
+      &quot;previousClose&quot;: 0.0,
+      &quot;high&quot;: 0.0,
+      &quot;low&quot;: 0.0,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;issueDate&quot;: &quot;&lt;issueDate&gt;&quot;,
+      &quot;turnover&quot;: 0.0,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;marketCap&quot;: 0.0,
+      &quot;marketCapPercentage&quot;: 0.0,
+      &quot;open&quot;: 0.0,
+      &quot;closingPrice&quot;: 0.0,
+      &quot;crossingVolume&quot;: 0,
+      &quot;crossingTradeVol&quot;: 0,
+      &quot;status&quot;: 0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="todayshareprice"><summary><span class="ep">todaySharePrice</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/todaySharePrice</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Today&#x27;s share price data</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;open&quot;: 0.0,
+    &quot;high&quot;: 0.0,
+    &quot;low&quot;: 0.0,
+    &quot;lastTradedPrice&quot;: 0.0,
+    &quot;change&quot;: 0.0,
+    &quot;changePercentage&quot;: 0.0,
+    &quot;crossingVolume&quot;: 0,
+    &quot;tradesTime&quot;: 1700000000000,
+    &quot;quantity&quot;: 0
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="detailedtrades"><summary><span class="ep">detailedTrades</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/detailedTrades</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> symbol (optional)</p><p>Detailed trades for all (or one) security</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqDetailTrades&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;securityId&quot;: null,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;price&quot;: 0.0,
+      &quot;qty&quot;: 0,
+      &quot;trades&quot;: 0,
+      &quot;change&quot;: 0.0,
+      &quot;changePercentage&quot;: 0.0,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="topgainers"><summary><span class="ep">topGainers</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/topGainers</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Top gaining stocks</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;securityId&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;price&quot;: 0.0,
+    &quot;change&quot;: 0.0,
+    &quot;changePercentage&quot;: 0.0,
+    &quot;tradeDate&quot;: 1700000000000
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="toplooses"><summary><span class="ep">topLooses</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/topLooses</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Top losing stocks</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;securityId&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;price&quot;: 0.0,
+    &quot;change&quot;: 0.0,
+    &quot;changePercentage&quot;: 0.0,
+    &quot;tradeDate&quot;: 1700000000000
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="mostactivetrades"><summary><span class="ep">mostActiveTrades</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/mostActiveTrades</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Most active trades</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;securityId&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;tradeVolume&quot;: 0.0,
+    &quot;shareVolume&quot;: 0.0,
+    &quot;turnover&quot;: 0.0,
+    &quot;percentageShareVolume&quot;: 0.0
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="mostactivevolumes"><summary><span class="ep">mostActiveVolumes</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/mostActiveVolumes</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Most active securities by share volume</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;securityId&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;tradeVolume&quot;: 0.0,
+    &quot;shareVolume&quot;: 0.0,
+    &quot;turnover&quot;: 0.0,
+    &quot;percentageShareVolume&quot;: 0.0
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="mostactivevolpercentage"><summary><span class="ep">mostActiveVolPercentage</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/mostActiveVolPercentage</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Most active securities by volume percentage</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;securityId&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;tradeVolume&quot;: 0.0,
+    &quot;shareVolume&quot;: 0.0,
+    &quot;turnover&quot;: 0.0,
+    &quot;percentageShareVolume&quot;: 0.0
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="chartdata"><summary><span class="ep">chartData</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/chartData</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> symbol, chartId, period</p><p>Price chart points for a stock</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;d&quot;: 0,
+    &quot;v&quot;: 0.0,
+    &quot;pc&quot;: null
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="companychartdatabystock"><summary><span class="ep">companyChartDataByStock</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/companyChartDataByStock</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> stockId, period (1 = intraday)</p><p>OHLC / trade chart data for a stock</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;chartData&quot;: [
+    {
+      &quot;h&quot;: 0.0,
+      &quot;l&quot;: 0.0,
+      &quot;o&quot;: null,
+      &quot;s&quot;: 0,
+      &quot;q&quot;: 0,
+      &quot;p&quot;: 0.0,
+      &quot;c&quot;: 0.0,
+      &quot;pc&quot;: 0.0,
+      &quot;t&quot;: 0,
+      &quot;n&quot;: null,
+      &quot;id&quot;: 0
+    }
+  ],
+  &quot;id&quot;: 0
+}</pre></div></details>
+    <details class="endpoint" data-name="list_by_market_cap"><summary><span class="ep">list_by_market_cap</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/list_by_market_cap</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>All securities ranked by market capitalisation</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqByMarketcap&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;high&quot;: 0.0,
+      &quot;low&quot;: 0.0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;price&quot;: 0.0,
+      &quot;quantity&quot;: 0,
+      &quot;issueDate&quot;: &quot;&lt;issueDate&gt;&quot;,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;turnover&quot;: 0.0,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;marketCap&quot;: 0.0,
+      &quot;marketCapPercentage&quot;: 0.0,
+      &quot;issuedQTY&quot;: 0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="cntsecurity"><summary><span class="ep">cntSecurity</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/cntSecurity</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>All securities with id, symbol and board id</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;securityId&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX&quot;,
+      &quot;boardId&quot;: 0,
+      &quot;deleted&quot;: 0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="allsecuritycode"><summary><span class="ep">allSecurityCode</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/allSecurityCode</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>All security codes with id and active flag</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+    &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+    &quot;active&quot;: 0
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="dailyshortselltradesummary"><summary><span class="ep">dailyShortSellTradeSummary</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/dailyShortSellTradeSummary</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> date (optional, YYYY-MM-DD)</p><p>Daily short-sell trade summary</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;dailyShortSellTradeSummaries&quot;: []
+}</pre></div></details>
+    <details class="endpoint" data-name="sblborrowingpool"><summary><span class="ep">sblBorrowingPool</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/sblBorrowingPool</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> security (ALL or symbol)</p><p>Securities borrowing &amp; lending: borrowing pool</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;sblBorrowingPool&quot;: []
+}</pre></div></details>
+    <details class="endpoint" data-name="sbllendingpool"><summary><span class="ep">sblLendingPool</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/sblLendingPool</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> security (ALL or symbol)</p><p>Securities borrowing &amp; lending: lending pool</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;sblLendingPool&quot;: []
+}</pre></div></details>
+  </section>
+  <h2>Trading Statistics</h2>
+  <section>
+    <details class="endpoint" data-name="alphabetical"><summary><span class="ep">alphabetical</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/alphabetical</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> alphabet (e.g. A)</p><p>Trading statistics for securities starting with a letter</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqAlphabetical&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;turnover&quot;: 0.0,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="list_by_type"><summary><span class="ep">list_by_type</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/list_by_type</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> type (e.g. N)</p><p>Trading statistics by issue type</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqByIssueType&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;issueDate&quot;: &quot;&lt;issueDate&gt;&quot;,
+      &quot;turnover&quot;: 0.0,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0
+    }
+  ]
+}</pre></div></details>
+  </section>
+  <h2>Indices</h2>
+  <section>
+    <details class="endpoint" data-name="aspidata"><summary><span class="ep">aspiData</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/aspiData</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>All Share Price Index (ASPI) value</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;id&quot;: 0,
+  &quot;value&quot;: 0.0,
+  &quot;lowValue&quot;: 0.0,
+  &quot;highValue&quot;: 0.0,
+  &quot;change&quot;: 0.0,
+  &quot;percentage&quot;: 0.0,
+  &quot;sectorId&quot;: 0.0,
+  &quot;timestamp&quot;: 1700000000000
+}</pre></div></details>
+    <details class="endpoint" data-name="snpdata"><summary><span class="ep">snpData</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/snpData</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>S&amp;P Sri Lanka 20 index value</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;id&quot;: 0,
+  &quot;value&quot;: 0.0,
+  &quot;lowValue&quot;: 0.0,
+  &quot;highValue&quot;: 0.0,
+  &quot;change&quot;: 0.0,
+  &quot;percentage&quot;: 0.0,
+  &quot;sectorId&quot;: 0.0,
+  &quot;timestamp&quot;: 1700000000000
+}</pre></div></details>
+    <details class="endpoint" data-name="aspi"><summary><span class="ep">aspi</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/aspi</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>ASPI constituents with price / turnover</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqASPIIndices&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;turnover&quot;: 0.0,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;change&quot;: 0.0,
+      &quot;changePercentage&quot;: 0.0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="aspi/year"><summary><span class="ep">aspi/year</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/aspi/year</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Year-to-date ASPI, S&amp;P SL20 and total-return values</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;triAspiValue&quot;: 0.0,
+  &quot;snpValueForYear&quot;: 0.0,
+  &quot;aspiValueForYear&quot;: 0.0,
+  &quot;triSnpValue&quot;: 0.0
+}</pre></div></details>
+    <details class="endpoint" data-name="spsl"><summary><span class="ep">spsl</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/spsl</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> indexType (optional)</p><p>S&amp;P SL20 constituents</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqSNPIndices&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;turnover&quot;: 0.0,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;change&quot;: 0.0,
+      &quot;changePercentage&quot;: 0.0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="marketindices"><summary><span class="ep">marketIndices</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/marketIndices</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>All sector / market indices</p><p><strong>Example Response:</strong></p><pre>[
+  [
+    {
+      &quot;id&quot;: 0,
+      &quot;sectorId&quot;: 0,
+      &quot;symbol&quot;: &quot;XXXX&quot;,
+      &quot;indexCode&quot;: &quot;1010&quot;,
+      &quot;indexCodeSp&quot;: &quot;&lt;indexCodeSp&gt;&quot;,
+      &quot;indexName&quot;: &quot;&lt;indexName&gt;&quot;,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;indexValue&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;percentage&quot;: 0.0,
+      &quot;sectorTradeToday&quot;: 0.0,
+      &quot;sectorVolumeToday&quot;: 0,
+      &quot;sectorTurnoverToday&quot;: 0.0,
+      &quot;sectorPreviousClose&quot;: 0.0,
+      &quot;transactionTime&quot;: 1700000000000
+    }
+  ]
+]</pre></div></details>
+    <details class="endpoint" data-name="return_indices"><summary><span class="ep">return_indices</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/return_indices</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Total return indices (TRI) for market and sectors</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;triSectorDate&quot;: 1700000000000,
+  &quot;reqMarketTriOther&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;sectorSymbol&quot;: &quot;XXXX&quot;,
+      &quot;sectorName&quot;: &quot;&lt;sectorName&gt;&quot;,
+      &quot;triTodayValue&quot;: 0.0,
+      &quot;triPreviousValue&quot;: 0.0,
+      &quot;triChange&quot;: 0.0,
+      &quot;triChangePercentage&quot;: 0.0,
+      &quot;triSectorDate&quot;: 1700000000000
+    }
+  ],
+  &quot;reqMarketTriMain&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;sectorSymbol&quot;: &quot;XXXX&quot;,
+      &quot;sectorName&quot;: &quot;&lt;sectorName&gt;&quot;,
+      &quot;triTodayValue&quot;: 0.0,
+      &quot;triPreviousValue&quot;: 0.0,
+      &quot;triChange&quot;: 0.0,
+      &quot;triChangePercentage&quot;: 0.0,
+      &quot;triSectorDate&quot;: 1700000000000
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="returnaspisnp"><summary><span class="ep">returnAspiSnp</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/returnAspiSnp</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>ASPI / S&amp;P SL20 return status flag</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;id&quot;: 0,
+  &quot;status&quot;: 0
+}</pre></div></details>
+    <details class="endpoint" data-name="getcontributors"><summary><span class="ep">getContributors</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getContributors</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Count of positive / negative ASPI contributors</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqPositiveCount&quot;: 0,
+  &quot;reqNegativeCount&quot;: 0
+}</pre></div></details>
+    <details class="endpoint" data-name="getcontributorschart"><summary><span class="ep">getContributorsChart</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getContributorsChart</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Top contributors to ASPI</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqContributersChart&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;contribution&quot;: 0.0,
+      &quot;lastTradedTime&quot;: 1700000000000
+    }
+  ]
+}</pre></div></details>
+  </section>
+  <h2>Sectors &amp; GICS</h2>
+  <section>
+    <details class="endpoint" data-name="allsectors"><summary><span class="ep">allSectors</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/allSectors</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Data for all sectors</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;sectorId&quot;: 0,
+    &quot;symbol&quot;: &quot;XXXX&quot;,
+    &quot;indexCode&quot;: &quot;1010&quot;,
+    &quot;indexCodeSp&quot;: &quot;&lt;indexCodeSp&gt;&quot;,
+    &quot;indexName&quot;: &quot;&lt;indexName&gt;&quot;,
+    &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+    &quot;indexValue&quot;: 0.0,
+    &quot;change&quot;: 0.0,
+    &quot;percentage&quot;: 0.0,
+    &quot;sectorTradeToday&quot;: 0.0,
+    &quot;sectorVolumeToday&quot;: 0,
+    &quot;sectorTurnoverToday&quot;: 0.0,
+    &quot;sectorPreviousClose&quot;: 0.0,
+    &quot;transactionTime&quot;: 1700000000000
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="listallsectors"><summary><span class="ep">listAllSectors</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/listAllSectors</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>List of all sector indices</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX&quot;,
+      &quot;indexCode&quot;: &quot;1010&quot;,
+      &quot;indexCodeSp&quot;: &quot;&lt;indexCodeSp&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="sector_list"><summary><span class="ep">sector_list</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/sector_list</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Sector index list (GET also works)</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;indicesList&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX&quot;,
+      &quot;indexCode&quot;: &quot;1010&quot;,
+      &quot;indexCodeSp&quot;: &quot;&lt;indexCodeSp&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="listbysector"><summary><span class="ep">listBySector</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/listBySector</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> sectorId (integer)</p><p>Companies in a sector, with trading data</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqIndustryBySectors&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.gif&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;turnover&quot;: 0.0,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;change&quot;: 0.0,
+      &quot;changePercentage&quot;: 0.0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="52weeksectors"><summary><span class="ep">52WeekSectors</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/52WeekSectors</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> sectorId (query string)</p><p>52-week / YTD high and change for a sector, e.g. 52WeekSectors?sectorId=1</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;previousClose&quot;: 0.0,
+  &quot;week52High&quot;: 0.0,
+  &quot;ytdHigh&quot;: 0.0,
+  &quot;ytdChange&quot;: 0.0,
+  &quot;week52Change&quot;: 0.0
+}</pre></div></details>
+    <details class="endpoint" data-name="sectorhighlow"><summary><span class="ep">sectorHighLow</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/sectorHighLow</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> sectorId (query string)</p><p>Daily open / high / low for a sector, e.g. sectorHighLow?sectorId=1</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;lastValue&quot;: 0.0,
+  &quot;openValue&quot;: 0.0,
+  &quot;dailyLow&quot;: 0.0,
+  &quot;dailyHigh&quot;: 0.0
+}</pre></div></details>
+    <details class="endpoint" data-name="gicssectors"><summary><span class="ep">GICSSectors</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/GICSSectors</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>GICS sectors</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;gicsSectors&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="gicssectorsummery"><summary><span class="ep">GICSSectorSummery</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/GICSSectorSummery</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>GICS industry group summary (PER, PBV, turnover)</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqGICSSectorSummery&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;tradeDate&quot;: 1700000000000,
+      &quot;sectorId&quot;: &quot;&lt;sectorId&gt;&quot;,
+      &quot;priceIndex&quot;: 0.0,
+      &quot;turnoverValue&quot;: 0.0,
+      &quot;turnoverVolume&quot;: 0,
+      &quot;tradeVolume&quot;: 0,
+      &quot;per&quot;: 0.0,
+      &quot;pbv&quot;: 0.0,
+      &quot;dy&quot;: &quot;0&quot;,
+      &quot;companiesTraded&quot;: 0,
+      &quot;companiesListed&quot;: 0
+    }
+  ],
+  &quot;reqTradeDate&quot;: 1700000000000
+}</pre></div></details>
+    <details class="endpoint" data-name="gicsindustrygroup"><summary><span class="ep">GICSIndustryGroup</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/GICSIndustryGroup</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> sectorId</p><p>GICS industry groups in a GICS sector</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;name&quot;: &quot;&lt;name&gt;&quot;
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="gics_sector_companies"><summary><span class="ep">gics_sector_companies</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/gics_sector_companies</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> sectorId, industryGroupId</p><p>Companies in a GICS industry group</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqIndustryBySectors&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;turnover&quot;: 0.0,
+      &quot;sharevolume&quot;: 0,
+      &quot;tradevolume&quot;: 0,
+      &quot;marketCap&quot;: 0.0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;
+    }
+  ]
+}</pre></div></details>
+  </section>
+  <h2>Listed Entities &amp; Boards</h2>
+  <section>
+    <details class="endpoint" data-name="main_boards"><summary><span class="ep">main_boards</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/main_boards</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Companies on the Main Board</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqMainBoards&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;tradeVolume&quot;: 0,
+      &quot;turnover&quot;: 0.0,
+      &quot;shareVolume&quot;: 0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;tradingStatus&quot;: null
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="secondboard"><summary><span class="ep">secondBoard</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/secondBoard</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Companies on the Second Board</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqSecondBoards&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;tradeVolume&quot;: 0,
+      &quot;turnover&quot;: 0.0,
+      &quot;shareVolume&quot;: 0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;tradingStatus&quot;: &quot;&lt;tradingStatus&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="divi_siri_board"><summary><span class="ep">divi_siri_board</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/divi_siri_board</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Companies on the Diri Savi Board</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqDirisaviBoards&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;tradeVolume&quot;: 0,
+      &quot;turnover&quot;: 0.0,
+      &quot;shareVolume&quot;: 0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;tradingStatus&quot;: null
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="empower_boards"><summary><span class="ep">empower_boards</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/empower_boards</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Companies on the Empower Board</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqEmpowerBoards&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: 1700000000000,
+      &quot;price&quot;: 0.0,
+      &quot;tradeVolume&quot;: 0,
+      &quot;turnover&quot;: 0.0,
+      &quot;shareVolume&quot;: 0,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;tradingStatus&quot;: null
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="default_board"><summary><span class="ep">default_board</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/default_board</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Companies on the Watch List (default board)</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqDefaultBoards&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;lastTradedTime&quot;: null,
+      &quot;price&quot;: 0.0,
+      &quot;tradeVolume&quot;: null,
+      &quot;turnover&quot;: null,
+      &quot;shareVolume&quot;: null,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;tradingStatus&quot;: &quot;&lt;tradingStatus&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="boardreason"><summary><span class="ep">boardReason</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/boardReason</code></p><p><strong>Content-Type:</strong> <code>application/json</code></p><p><strong>Parameters:</strong> symbole (sic)</p><p>Reason a security is on its board</p></div></details>
+    <details class="endpoint" data-name="listedentitiesbytradingstatus"><summary><span class="ep">listedEntitiesByTradingStatus</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/listedEntitiesByTradingStatus</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> tradingStatus (TS = suspended, TH = halted)</p><p>Suspended / halted securities</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;lastTradedTime&quot;: null,
+      &quot;price&quot;: 0.0,
+      &quot;tradeVolume&quot;: null,
+      &quot;turnover&quot;: null,
+      &quot;shareVolume&quot;: null,
+      &quot;percentageChange&quot;: 0.0,
+      &quot;change&quot;: 0.0,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="delistedentities"><summary><span class="ep">deListedEntities</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/deListedEntities</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>De-listed entities</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="investorcompanies"><summary><span class="ep">investorCompanies</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/investorCompanies</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Investor relations companies and their advisors</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;companyName&quot;: &quot;&lt;companyName&gt;&quot;,
+      &quot;logo&quot;: &quot;cms-internal/&lt;file&gt;.webp&quot;,
+      &quot;advisors&quot;: [
         {
-            "id": 22240,
-            "tradeDate": 1754505000000,
-            "marketTurnover": 3.26376192E9,
-            "marketTrades": 30274.0,
-            "marketDomestic": 30003.0,
-            "marketForeign": 271.0,
-            "equityTurnover": 3.26376192E9,
-            "equityDomesticPurchase": 3.15549645E9,
-            "equityDomesticSales": 3.18251674E9,
-            "equityForeignPurchase": 1.08265512E8,
-            "equityForeignSales": 8.1245208E7,
-            "volumeOfTurnOverNumber": 1.15084304E8,
-            "volumeOfTurnoverDomestic": 1.13407144E8,
-            "volumeOfTurnoverForeign": 1677157,
-            "tradesNo": 30274,
-            "tradesNoDomestic": 30003,
-            "tradesNoForeign": 271,
-            "listedCompanyNumber": 286,
-            "tradeCompanyNumber": 264,
-            "marketCap": 6.940225783432E12,
-            "cdsHoldingsTotal": 1.76301605E11,
-            "cdsHoldingsDomestic": 1.45956422E11,
-            "cdsHoldingsForeign": 3.03451935E10,
-            "cdsMarketValueTotal": 5.5536905E12,
-            "cdsMarketValueDomestic": 4.5569682E12,
-            "cdsMarketValueForeign": 9.9672234E11,
-            "corporateDebtValue": 0.0,
-            "governmentDebtValue": 0.0,
-            "triasi": 29913.8,
-            "spt": 11861.33,
-            "asi": 19826.57,
-            "mpi": null,
-            "spp": 5825.39,
-            "trimpi": null,
-            "per": 9.2,
-            "pbv": 1.3,
-            "dy": 2.5
+          &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+          &quot;fullName&quot;: &quot;&lt;fullName&gt;&quot;
+        }
+      ]
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="getallissuers"><summary><span class="ep">getAllIssuers</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getAllIssuers</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>All debt issuers</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqIssuers&quot;: [
+    {
+      &quot;issuer&quot;: &quot;XXXX&quot;,
+      &quot;id&quot;: 0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="upcominglistings"><summary><span class="ep">upcomingListings</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/upcomingListings</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> newListingType (P = primary, S = secondary)</p><p>Upcoming listings / IPOs</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;publishedDate&quot;: &quot;YYYY-MM-DDThh:mm:ss&quot;,
+      &quot;status&quot;: &quot;A&quot;,
+      &quot;logo&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+      &quot;newListingType&quot;: &quot;P&quot;,
+      &quot;category&quot;: &quot;&lt;category&gt;&quot;,
+      &quot;documents&quot;: [
+        {
+          &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+          &quot;documentType&quot;: &quot;PRO&quot;,
+          &quot;attachments&quot;: [
+            {
+              &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+              &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+              &quot;file&quot;: &quot;&lt;file&gt;&quot;
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}</pre></div></details>
+  </section>
+  <h2>Debt Market</h2>
+  <section>
+    <details class="endpoint" data-name="debttrades"><summary><span class="ep">debtTrades</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/debtTrades</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Listed debt securities and trades</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqDebtTrade&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX.N0000&quot;,
+      &quot;issuer&quot;: &quot;XXXX&quot;,
+      &quot;issueDate&quot;: &quot;&lt;issueDate&gt;&quot;,
+      &quot;maturityDate&quot;: &quot;&lt;maturityDate&gt;&quot;,
+      &quot;couponRate&quot;: &quot;&lt;couponRate&gt;&quot;,
+      &quot;quantityIssued&quot;: 0,
+      &quot;parValue&quot;: 0.0,
+      &quot;yield&quot;: 0.0,
+      &quot;price&quot;: 0.0,
+      &quot;quantity&quot;: 0,
+      &quot;boardId&quot;: null,
+      &quot;status&quot;: 0,
+      &quot;tradeDate&quot;: null,
+      &quot;isin&quot;: null
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="debtdetailtrades"><summary><span class="ep">debtDetailTrades</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/debtDetailTrades</code></p><p><strong>Content-Type:</strong> <code>application/json</code></p><p><strong>Parameters:</strong> None</p><p>Debt market detailed trades</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqDebtDetailTrade&quot;: []
+}</pre></div></details>
+  </section>
+  <h2>Announcements &amp; Disclosures</h2>
+  <section>
+    <details class="endpoint" data-name="approvedannouncement"><summary><span class="ep">approvedAnnouncement</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/approvedAnnouncement</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Approved announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;approvedAnnouncements&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;createdDate&quot;: 1700000000000,
+      &quot;dateOfAnnouncement&quot;: &quot;&lt;dateOfAnnouncement&gt;&quot;,
+      &quot;announcementId&quot;: 0,
+      &quot;announcementCategory&quot;: &quot;&lt;announcementCategory&gt;&quot;,
+      &quot;company&quot;: &quot;XXXX&quot;,
+      &quot;type&quot;: null,
+      &quot;symbol&quot;: null,
+      &quot;recordDate&quot;: null,
+      &quot;allotment&quot;: null,
+      &quot;xr&quot;: null,
+      &quot;xc&quot;: null,
+      &quot;xd&quot;: null,
+      &quot;tradingCommencement&quot;: null,
+      &quot;tradingSuspended&quot;: null,
+      &quot;paymentDate&quot;: null,
+      &quot;agmDate&quot;: null,
+      &quot;dateOfAgmInitial&quot;: null,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;remarks&quot;: null
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="getfinancialannouncement"><summary><span class="ep">getFinancialAnnouncement</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getFinancialAnnouncement</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> companyIds, fromDate, toDate (all optional)</p><p>Financial announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqFinancialAnnouncemnets&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;path&quot;: &quot;cmt/&lt;file&gt;.pdf&quot;,
+      &quot;manualDate&quot;: 1700000000000,
+      &quot;uploadedDate&quot;: &quot;&lt;uploadedDate&gt;&quot;,
+      &quot;fileText&quot;: &quot;&lt;fileText&gt;&quot;,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;symbol&quot;: &quot;XXXX&quot;,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;,
+      &quot;authorizedDate&quot;: &quot;&lt;authorizedDate&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="getnewlistingsrelatednoticesannouncements"><summary><span class="ep">getNewListingsRelatedNoticesAnnouncements</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getNewListingsRelatedNoticesAnnouncements</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>New listings and related announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;newListingRelatedAnnouncements&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;announcementId&quot;: 0,
+      &quot;createdDate&quot;: &quot;&lt;createdDate&gt;&quot;,
+      &quot;title&quot;: null,
+      &quot;announcementCategory&quot;: &quot;&lt;announcementCategory&gt;&quot;,
+      &quot;category&quot;: &quot;59&quot;,
+      &quot;company&quot;: &quot;XXXX&quot;,
+      &quot;remarks&quot;: &quot;&lt;remarks&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="getbuyinboardannouncements"><summary><span class="ep">getBuyInBoardAnnouncements</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getBuyInBoardAnnouncements</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Buy-in board announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;buyInBoardAnnouncements&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;announcementId&quot;: 0,
+      &quot;createdDate&quot;: &quot;&lt;createdDate&gt;&quot;,
+      &quot;title&quot;: null,
+      &quot;announcementCategory&quot;: &quot;&lt;announcementCategory&gt;&quot;,
+      &quot;category&quot;: &quot;60&quot;,
+      &quot;company&quot;: &quot;XXXX&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="getcovidannouncements"><summary><span class="ep">getCOVIDAnnouncements</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getCOVIDAnnouncements</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>COVID-related announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;covidAnnouncements&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;announcementId&quot;: 0,
+      &quot;createdDate&quot;: &quot;&lt;createdDate&gt;&quot;,
+      &quot;title&quot;: null,
+      &quot;announcementCategory&quot;: &quot;&lt;announcementCategory&gt;&quot;,
+      &quot;category&quot;: &quot;58&quot;,
+      &quot;company&quot;: &quot;XXXX&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="getnoncomplianceannouncements"><summary><span class="ep">getNonComplianceAnnouncements</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getNonComplianceAnnouncements</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Non-compliance announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;nonComplianceAnnouncements&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;announcementId&quot;: 0,
+      &quot;createdDate&quot;: &quot;&lt;createdDate&gt;&quot;,
+      &quot;title&quot;: null,
+      &quot;announcementCategory&quot;: &quot;&lt;announcementCategory&gt;&quot;,
+      &quot;category&quot;: &quot;40&quot;,
+      &quot;company&quot;: &quot;XXXX&quot;,
+      &quot;companyName&quot;: null,
+      &quot;logoUrl&quot;: &quot;upload_logo/&lt;file&gt;.jpeg&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="circularannouncement"><summary><span class="ep">circularAnnouncement</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/circularAnnouncement</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Circular announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqCircularAnnouncement&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;manualDate&quot;: 1700000000000,
+      &quot;uploadedDate&quot;: &quot;&lt;uploadedDate&gt;&quot;,
+      &quot;fileText&quot;: &quot;&lt;fileText&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="directiveannouncement"><summary><span class="ep">directiveAnnouncement</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/directiveAnnouncement</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> None</p><p>Directive announcements</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqDirectiveAnnouncement&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;manualDate&quot;: 1700000000000,
+      &quot;uploadedDate&quot;: &quot;&lt;uploadedDate&gt;&quot;,
+      &quot;fileText&quot;: &quot;&lt;fileText&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="corporateannouncementcategory"><summary><span class="ep">corporateAnnouncementCategory</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/corporateAnnouncementCategory</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Corporate announcement categories</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;categoryName&quot;: &quot;&lt;categoryName&gt;&quot;,
+    &quot;genAnnou&quot;: false,
+    &quot;smd&quot;: true,
+    &quot;parentCategoryId&quot;: null
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="getannouncementbyid"><summary><span class="ep">getAnnouncementById</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getAnnouncementById</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> announcementId (from approvedAnnouncement)</p><p>Full details of an approved announcement</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqBaseAnnouncement&quot;: {
+    &quot;id&quot;: 0,
+    &quot;dType&quot;: &quot;&lt;dType&gt;&quot;,
+    &quot;dateOfAnnouncement&quot;: &quot;&lt;dateOfAnnouncement&gt;&quot;,
+    &quot;cbApproved&quot;: null,
+    &quot;cbApprovedReceived&quot;: true,
+    &quot;cbApprovedNotRequired&quot;: false,
+    &quot;cbApprovedPending&quot;: false,
+    &quot;remarks&quot;: &quot;&lt;remarks&gt;&quot;,
+    &quot;approveStatus&quot;: null,
+    &quot;cseComment&quot;: null,
+    &quot;createdDate&quot;: null,
+    &quot;updatedDate&quot;: null,
+    &quot;approveStatusDisplay&quot;: null,
+    &quot;company&quot;: null,
+    &quot;announcementDocuments&quot;: null,
+    &quot;symbol&quot;: &quot;XXXX&quot;,
+    &quot;companyName&quot;: &quot;&lt;companyName&gt;&quot;,
+    &quot;accTypeRelInterest&quot;: false,
+    &quot;accTypeOwnAcc&quot;: true,
+    &quot;dircetorsName&quot;: &quot;&lt;dircetorsName&gt;&quot;,
+    &quot;relInterestAccountName&quot;: null,
+    &quot;dateOfNotification&quot;: &quot;&lt;dateOfNotification&gt;&quot;,
+    &quot;natureOfDir&quot;: &quot;&lt;natureOfDir&gt;&quot;,
+    &quot;directorTransactions&quot;: [
+      {
+        &quot;dirId&quot;: 0,
+        &quot;transType&quot;: &quot;&lt;transType&gt;&quot;,
+        &quot;transactionDate&quot;: &quot;&lt;transactionDate&gt;&quot;,
+        &quot;quantity&quot;: 0.0,
+        &quot;price&quot;: 0.0
+      }
+    ]
+  },
+  &quot;reqAnnouncementDocs&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;fileName&quot;: &quot;&lt;fileName&gt;&quot;,
+      &quot;fileSize&quot;: 0,
+      &quot;fileOriginalName&quot;: &quot;&lt;fileOriginalName&gt;&quot;,
+      &quot;contentType&quot;: &quot;&lt;contentType&gt;&quot;,
+      &quot;status&quot;: &quot;1&quot;,
+      &quot;baseUrl&quot;: &quot;https://cdn.cse.lk/&quot;
+  ...</pre></div></details>
+    <details class="endpoint" data-name="getgeneralannouncementbyid"><summary><span class="ep">getGeneralAnnouncementById</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getGeneralAnnouncementById</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> announcementId (from the announcement lists)</p><p>Full details of a general announcement</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;reqBaseAnnouncement&quot;: {
+    &quot;id&quot;: 0,
+    &quot;remarks&quot;: &quot;&lt;remarks&gt;&quot;,
+    &quot;period&quot;: null,
+    &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+    &quot;dateOfAnnouncement&quot;: &quot;&lt;dateOfAnnouncement&gt;&quot;,
+    &quot;cbApproved&quot;: null,
+    &quot;company&quot;: null,
+    &quot;recordDate&quot;: null,
+    &quot;allotment&quot;: null,
+    &quot;xr&quot;: null,
+    &quot;tradingCommencement&quot;: null,
+    &quot;tradingSuspended&quot;: null,
+    &quot;symbol&quot;: &quot;XXXX&quot;,
+    &quot;companyName&quot;: &quot;&lt;companyName&gt;&quot;,
+    &quot;totValShareRepurchase&quot;: null,
+    &quot;offerOpeningDateRepurchase&quot;: null,
+    &quot;offerClosingDateRepurchase&quot;: null,
+    &quot;dispatchDateOfferDocAcceptanceForms&quot;: null,
+    &quot;shareholderPaymentDueLatestDate&quot;: null,
+    &quot;votingProportion&quot;: null,
+    &quot;nonVotingProportion&quot;: null,
+    &quot;egm&quot;: null,
+    &quot;subDivisionBasedOnShareholdingsAsAt&quot;: null,
+    &quot;lastTradingSuspended&quot;: null
+  },
+  &quot;reqAnnouncementDocs&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;fileName&quot;: &quot;&lt;fileName&gt;&quot;,
+      &quot;fileSize&quot;: 0,
+      &quot;fileOriginalName&quot;: &quot;&lt;fileOriginalName&gt;&quot;,
+      &quot;contentType&quot;: &quot;&lt;contentType&gt;&quot;,
+      &quot;status&quot;: &quot;1&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="smd"><summary><span class="ep">smd</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/smd</code></p><p><strong>Content-Type:</strong> <code>application/json</code></p><p><strong>Parameters:</strong> allCategories, allCompanies, companyIds, categories, fromDate, toDate</p><p>Stock market disclosures, grouped by category</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;Financial Statements&quot;: {
+    &quot;ANNUAL FINANCIAL REPORT&quot;: [
+      {
+        &quot;id&quot;: 0,
+        &quot;secId&quot;: 0,
+        &quot;company&quot;: &quot;XXXX&quot;,
+        &quot;symbol&quot;: &quot;XXXX&quot;,
+        &quot;reportType&quot;: 0,
+        &quot;reportTypeName&quot;: &quot;&lt;reportTypeName&gt;&quot;
+      }
+    ]
+  },
+  &quot;...&quot;: &quot;&lt;text&gt;&quot;
+}</pre></div></details>
+    <details class="endpoint" data-name="smd/categories"><summary><span class="ep">smd/categories</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/smd/categories</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>SMD category names</p><p><strong>Example Response:</strong></p><pre>[
+  &quot;&lt;text&gt;&quot;
+]</pre></div></details>
+    <details class="endpoint" data-name="corporatecalender"><summary><span class="ep">corporateCalender</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/corporateCalender</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> year, month</p><p>Corporate action calendar</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;approvedCoopCalAnnouncements&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;createdDate&quot;: 1700000000000,
+      &quot;dateOfAnnouncement&quot;: &quot;&lt;dateOfAnnouncement&gt;&quot;,
+      &quot;announcementId&quot;: 0,
+      &quot;announcementCategory&quot;: &quot;&lt;announcementCategory&gt;&quot;,
+      &quot;company&quot;: &quot;XXXX&quot;,
+      &quot;type&quot;: null,
+      &quot;symbol&quot;: &quot;XXXX&quot;,
+      &quot;recordDate&quot;: 1700000000000,
+      &quot;allotment&quot;: null,
+      &quot;xr&quot;: null,
+      &quot;xc&quot;: null,
+      &quot;xd&quot;: 0,
+      &quot;tradingCommencement&quot;: null,
+      &quot;tradingSuspended&quot;: null,
+      &quot;paymentDate&quot;: 1700000000000,
+      &quot;agmDate&quot;: null,
+      &quot;dateOfAgmInitial&quot;: null,
+      &quot;logoUrl&quot;: null,
+      &quot;remarks&quot;: null
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="getagmegmevents"><summary><span class="ep">getAgmEgmEvents</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/getAgmEgmEvents</code></p><p><strong>Content-Type:</strong> <code>application/x-www-form-urlencoded</code></p><p><strong>Parameters:</strong> year, month</p><p>AGM / EGM events</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: 0,
+    &quot;agmEgmCategory&quot;: &quot;EGM&quot;,
+    &quot;company&quot;: &quot;XXXX&quot;,
+    &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+    &quot;date&quot;: 1700000000000,
+    &quot;time&quot;: &quot;&lt;time&gt;&quot;,
+    &quot;addressLine1&quot;: &quot;&lt;addressLine1&gt;&quot;,
+    &quot;addressLine2&quot;: null,
+    &quot;addressLine3&quot;: null,
+    &quot;reason&quot;: null,
+    &quot;approveStatus&quot;: null,
+    &quot;cseComment&quot;: null,
+    &quot;filePath&quot;: &quot;&lt;filePath&gt;&quot;,
+    &quot;amPm&quot;: null,
+    &quot;files&quot;: null
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="csecircular"><summary><span class="ep">cseCircular</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/cseCircular</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> year, type (optional)</p><p>CSE circulars for a year</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;circulars&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;manualDate&quot;: 1700000000000,
+      &quot;uploadedDate&quot;: &quot;&lt;uploadedDate&gt;&quot;,
+      &quot;fileText&quot;: &quot;&lt;fileText&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="secdirective"><summary><span class="ep">secDirective</span><span class="m m-post">POST</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/secDirective</code></p><p><strong>Content-Type:</strong> <code>multipart/form-data</code></p><p><strong>Parameters:</strong> year</p><p>SEC directives for a year</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;directives&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;path&quot;: &quot;upload_report_file/&lt;file&gt;.pdf&quot;,
+      &quot;manualDate&quot;: 1700000000000,
+      &quot;uploadedDate&quot;: &quot;&lt;uploadedDate&gt;&quot;,
+      &quot;fileText&quot;: &quot;&lt;fileText&gt;&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="rulebooks/web/list"><summary><span class="ep">ruleBooks/web/list</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/ruleBooks/web/list</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> ruleType</p><p>Rule books grouped by heading, e.g. ruleBooks/web/list?ruleType=1</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;TRADING PARTICIPANT RULES&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;subHeading&quot;: null,
+      &quot;text&quot;: &quot;&lt;text&gt;&quot;,
+      &quot;attachment&quot;: &quot;rule-books/&lt;file&gt;.pdf&quot;,
+      &quot;ruleType&quot;: &quot;&lt;ruleType&gt;&quot;,
+      &quot;status&quot;: &quot;A&quot;,
+      &quot;heading&quot;: {
+        &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+        &quot;heading&quot;: &quot;&lt;heading&gt;&quot;,
+        &quot;orders&quot;: 0
+      }
+    }
+  ],
+  &quot;REPORTING REQUIREMENTS&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;subHeading&quot;: null,
+      &quot;text&quot;: &quot;&lt;text&gt;&quot;,
+      &quot;attachment&quot;: &quot;rule-books/&lt;file&gt;.pdf&quot;,
+      &quot;ruleType&quot;: &quot;&lt;ruleType&gt;&quot;,
+      &quot;status&quot;: &quot;A&quot;,
+      &quot;heading&quot;: {
+        &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+        &quot;heading&quot;: &quot;&lt;heading&gt;&quot;,
+        &quot;orders&quot;: 0
+      }
+    }
+  ]
+}</pre></div></details>
+  </section>
+  <h2>News, Events &amp; Content</h2>
+  <section>
+    <details class="endpoint" data-name="news/web"><summary><span class="ep">news/web</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/news/web</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> top, type (CN / BN / MR), year, security, numberOfRecord</p><p>News (CN = CSE news, BN = company news, MR = market reviews)</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;CN&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+      &quot;shortDescription&quot;: &quot;&lt;shortDescription&gt;&quot;,
+      &quot;publishedDate&quot;: &quot;YYYY-MM-DD hh:mm:ss&quot;,
+      &quot;security&quot;: 0,
+      &quot;year&quot;: 2025,
+      &quot;month&quot;: &quot;10&quot;,
+      &quot;image1&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;image2&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;image3&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;type&quot;: &quot;CN&quot;,
+      &quot;source&quot;: &quot;CSE&quot;,
+      &quot;companyLogo&quot;: null,
+      &quot;image1Orientation&quot;: &quot;V&quot;,
+      &quot;image2Orientation&quot;: &quot;V&quot;,
+      &quot;image3Orientation&quot;: &quot;V&quot;,
+      &quot;web&quot;: true,
+      &quot;mobile&quot;: true,
+      &quot;localization&quot;: {
+        &quot;en&quot;: {
+          &quot;pdf&quot;: &quot;cms-internal/&lt;file&gt;.pdf&quot;
+        }
+      }
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="events"><summary><span class="ep">events</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/events</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> eventType, year</p><p>Events grouped by month</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;11&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;eventType&quot;: &quot;OT&quot;,
+      &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+      &quot;body&quot;: &quot;&lt;body&gt;&quot;,
+      &quot;titleImage&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;publishedDate&quot;: &quot;YYYY-MM-DD hh:mm:ss&quot;,
+      &quot;status&quot;: &quot;A&quot;,
+      &quot;month&quot;: 0,
+      &quot;year&quot;: 2025,
+      &quot;images&quot;: [
+        {
+          &quot;id&quot;: 0,
+          &quot;imagePath&quot;: &quot;cms-internal/&lt;file&gt;.png&quot;
+        }
+      ]
+    }
+  ],
+  &quot;10&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;eventType&quot;: &quot;OT&quot;,
+      &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+      &quot;body&quot;: &quot;&lt;body&gt;&quot;,
+      &quot;titleImage&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;publishedDate&quot;: &quot;YYYY-MM-DD hh:mm:ss&quot;,
+      &quot;status&quot;: &quot;A&quot;,
+      &quot;month&quot;: 0,
+      &quot;year&quot;: 2025,
+      &quot;images&quot;: [
+        {
+          &quot;id&quot;: 0,
+          &quot;imagePath&quot;: &quot;cms-internal/&lt;file&gt;.png&quot;
+        }
+      ]
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="events/top"><summary><span class="ep">events/top</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/events/top</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> top, year, numberOfRecord</p><p>Latest events</p><p><strong>Example Response:</strong></p><pre>[
+  {
+    &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+    &quot;eventType&quot;: &quot;OT&quot;,
+    &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+    &quot;body&quot;: &quot;&lt;body&gt;&quot;,
+    &quot;titleImage&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+    &quot;publishedDate&quot;: &quot;YYYY-MM-DD hh:mm:ss&quot;,
+    &quot;status&quot;: &quot;A&quot;,
+    &quot;month&quot;: 0,
+    &quot;year&quot;: 2025,
+    &quot;images&quot;: [
+      {
+        &quot;id&quot;: 0,
+        &quot;imagePath&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;
+      }
+    ]
+  }
+]</pre></div></details>
+    <details class="endpoint" data-name="events/{id}"><summary><span class="ep">events/{id}</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/events/{id}</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> id in the path (from events)</p><p>Single event with body and images</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;content&quot;: {
+    &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+    &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+    &quot;body&quot;: &quot;&lt;body&gt;&quot;,
+    &quot;titleImage&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+    &quot;publishedDate&quot;: &quot;YYYY-MM-DD hh:mm:ss&quot;,
+    &quot;status&quot;: &quot;A&quot;,
+    &quot;month&quot;: &quot;10&quot;,
+    &quot;year&quot;: &quot;2026&quot;,
+    &quot;images&quot;: [
+      {
+        &quot;id&quot;: 0,
+        &quot;imagePath&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;
+      }
+    ]
+  }
+}</pre></div></details>
+    <details class="endpoint" data-name="banners"><summary><span class="ep">banners</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/banners</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> type, category</p><p>Website banners</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;type&quot;: &quot;W&quot;,
+      &quot;title&quot;: &quot;&lt;title&gt;&quot;,
+      &quot;position&quot;: &quot;2&quot;,
+      &quot;language&quot;: &quot;&lt;language&gt;&quot;,
+      &quot;link&quot;: &quot;https://www.cse.lk/...&quot;,
+      &quot;publishedDate&quot;: &quot;YYYY-MM-DD&quot;,
+      &quot;image&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;responsiveImage&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;status&quot;: &quot;A&quot;,
+      &quot;category&quot;: &quot;M&quot;,
+      &quot;pdf&quot;: null,
+      &quot;expiredAt&quot;: null
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="branchoffices"><summary><span class="ep">branchOffices</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/branchOffices</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Broker branch offices</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;brokerName&quot;: &quot;&lt;brokerName&gt;&quot;,
+      &quot;branches&quot;: [
+        {
+          &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+          &quot;address&quot;: &quot;&lt;address&gt;&quot;,
+          &quot;contactNo&quot;: &quot;&lt;contactNo&gt;&quot;,
+          &quot;faxNo&quot;: &quot;&lt;faxNo&gt;&quot;,
+          &quot;email&quot;: &quot;&lt;email&gt;&quot;
         }
       ],
-    ]
-    </details>
-    <details class="endpoint"><summary>companyChartDataByStock</summary><div class="endpoint-content"><pre>{"reqTradeSummery": {'chartData': [{'h': 562.0, 'l': 562.0, 'o': None, 's': 51866050, 'q': 32, 'p': 562.0, 'c': 1.75, 'pc': 0.31236055332440876, 't': 1762401600377, 'n': None, 'id': 51866050}, ...}]}</pre></div></details>
+      &quot;logo&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="careers"><summary><span class="ep">careers</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/careers</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>CSE career vacancies</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: []
+}</pre></div></details>
+    <details class="endpoint" data-name="members"><summary><span class="ep">members</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/members</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Member firms</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;companyName&quot;: &quot;&lt;companyName&gt;&quot;,
+      &quot;companyAddress&quot;: &quot;&lt;companyAddress&gt;&quot;,
+      &quot;contactNo&quot;: &quot;&lt;contactNo&gt;&quot;,
+      &quot;faxNo&quot;: &quot;&lt;faxNo&gt;&quot;,
+      &quot;email&quot;: &quot;&lt;email&gt;&quot;,
+      &quot;web&quot;: &quot;&lt;web&gt;&quot;,
+      &quot;contactName&quot;: &quot;&lt;contactName&gt;&quot;,
+      &quot;contactDesignation&quot;: &quot;&lt;contactDesignation&gt;&quot;,
+      &quot;logo&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;orders&quot;: 0
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="tradingmembers"><summary><span class="ep">tradingMembers</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/tradingMembers</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Trading members</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;companyName&quot;: &quot;&lt;companyName&gt;&quot;,
+      &quot;companyAddress&quot;: &quot;&lt;companyAddress&gt;&quot;,
+      &quot;contactNo&quot;: &quot;&lt;contactNo&gt;&quot;,
+      &quot;faxNo&quot;: &quot;&lt;faxNo&gt;&quot;,
+      &quot;email&quot;: &quot;&lt;email&gt;&quot;,
+      &quot;web&quot;: &quot;https://www.example.com&quot;,
+      &quot;contactName&quot;: &quot;&lt;contactName&gt;&quot;,
+      &quot;contactDesignation&quot;: &quot;&lt;contactDesignation&gt;&quot;,
+      &quot;logo&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;memberType&quot;: &quot;EQ&quot;
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="localseminars"><summary><span class="ep">localSeminars</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/localSeminars</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Investor education seminars</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;town&quot;: &quot;&lt;town&gt;&quot;,
+      &quot;venue&quot;: &quot;&lt;venue&gt;&quot;,
+      &quot;dates&quot;: &quot;&lt;dates&gt;&quot;,
+      &quot;time&quot;: &quot;&lt;time&gt;&quot;,
+      &quot;medium&quot;: &quot;&lt;medium&gt;&quot;,
+      &quot;status&quot;: &quot;A&quot;,
+      &quot;seminarDate&quot;: &quot;YYYY-MM-DD&quot;,
+      &quot;publishedDate&quot;: &quot;YYYY-MM-DD&quot;,
+      &quot;price&quot;: 0,
+      &quot;stage&quot;: 0,
+      &quot;bannerUrl&quot;: &quot;cms-internal/&lt;file&gt;.jpeg&quot;,
+      &quot;brochureLink&quot;: null,
+      &quot;link&quot;: &quot;&lt;link&gt;&quot;,
+      &quot;charges&quot;: []
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="local/courses"><summary><span class="ep">local/courses</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/local/courses</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>CSE Academy courses</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;status&quot;: &quot;OK&quot;,
+  &quot;statusCode&quot;: 0,
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;name&quot;: &quot;&lt;name&gt;&quot;,
+      &quot;courseType&quot;: &quot;&lt;courseType&gt;&quot;,
+      &quot;venue&quot;: &quot;&lt;venue&gt;&quot;,
+      &quot;dates&quot;: &quot;YYYY-MM-DD to YYYY-MM-DD&quot;,
+      &quot;time&quot;: &quot;&lt;time&gt;&quot;,
+      &quot;medium&quot;: &quot;&lt;medium&gt;&quot;,
+      &quot;price&quot;: 0,
+      &quot;currency&quot;: &quot;LKR&quot;,
+      &quot;bannerUrl&quot;: &quot;cms-internal/&lt;file&gt;.png&quot;,
+      &quot;description&quot;: &quot;&lt;description&gt;&quot;,
+      &quot;brochureLink&quot;: &quot;cms-internal/&lt;file&gt;.pdf&quot;,
+      &quot;link&quot;: &quot;&lt;link&gt;&quot;,
+      &quot;expiredAt&quot;: {
+        &quot;nano&quot;: 0,
+        &quot;year&quot;: 2025,
+        &quot;monthValue&quot;: 0,
+        &quot;dayOfMonth&quot;: 0,
+        &quot;hour&quot;: 0,
+        &quot;minute&quot;: 0
+      },
+      &quot;charges&quot;: []
+    }
+  ]
+}</pre></div></details>
+    <details class="endpoint" data-name="educationalvideos"><summary><span class="ep">educationalVideos</span><span class="m m-get">GET</span></summary><div class="endpoint-content"><p><strong>URL:</strong> <code>https://www.cse.lk/api/educationalVideos</code></p><p><strong>Content-Type:</strong> <code>— (GET)</code></p><p><strong>Parameters:</strong> None</p><p>Educational videos</p><p><strong>Example Response:</strong></p><pre>{
+  &quot;content&quot;: [
+    {
+      &quot;id&quot;: &quot;&lt;id&gt;&quot;,
+      &quot;link&quot;: &quot;https://www.youtube.com/...&quot;,
+      &quot;isHome&quot;: true,
+      &quot;videoCount&quot;: null,
+      &quot;lang&quot;: &quot;&lt;lang&gt;&quot;
+    }
+  ]
+}</pre></div></details>
   </section>
+
+  <h2>Disclaimer</h2>
+  <div class="panel">
+    <p>This project is unofficial and not affiliated with or endorsed by the Colombo Stock Exchange. All data returned by these endpoints is the property of CSE and is subject to the <a href="https://www.cse.lk/disclaimer">CSE Terms of Use</a>: personal, non-commercial use only. Any commercial use, redistribution or republication of CSE data requires prior written permission from CSE. Keep request volumes low; CSE may block abusive IP addresses.</p>
+  </div>
+
+<script>
+  document.getElementById("q").addEventListener("input", function (e) {
+    var q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll("details.endpoint").forEach(function (d) {
+      d.style.display = !q || d.dataset.name.indexOf(q) !== -1 || d.textContent.toLowerCase().indexOf(q) !== -1 ? "" : "none";
+    });
+  });
+</script>
 </body>
 </html>

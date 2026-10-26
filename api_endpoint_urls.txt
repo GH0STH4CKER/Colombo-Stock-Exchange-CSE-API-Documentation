@@ -1,23 +1,110 @@
-https://www.cse.lk/api/companyInfoSummery							              Detailed info of a single stock/security by symbol	
-https://www.cse.lk/api/tradeSummary								                  Summary of trades for all securities	
-https://www.cse.lk/api/todaySharePrice							                Today's share price data	
-https://www.cse.lk/api/topGainers							                    	List of top gaining stocks	
-https://www.cse.lk/api/topLooses									                  List of top losing stocks	
-https://www.cse.lk/api/mostActiveTrades							                Most active trades by volume	
-https://www.cse.lk/api/getNewListingsRelatedNoticesAnnouncements		New listings and related announcements	
-https://www.cse.lk/api/getBuyInBoardAnnouncements					          Buy-in board announcements	
-https://www.cse.lk/api/approvedAnnouncement						              Approved announcements	
-https://www.cse.lk/api/getCOVIDAnnouncements						            COVID-related announcements	
-https://www.cse.lk/api/getFinancialAnnouncement					            Financial announcements	
-https://www.cse.lk/api/circularAnnouncement						              Circular announcements	
-https://www.cse.lk/api/directiveAnnouncement						            Directive announcements	
-https://www.cse.lk/api/getNonComplianceAnnouncements				        Non-compliance announcements	
-https://www.cse.lk/api/marketStatus								                  Market open/close status	
-https://www.cse.lk/api/marketSummery								                Market summary data	
-https://www.cse.lk/api/aspiData									                    All Share Price Index data	
-https://www.cse.lk/api/snpData									                    S&P Sri Lanka 20 Index data	
-https://www.cse.lk/api/chartData									                  Chart data for stocks	
-https://www.cse.lk/api/allSectors								                    All sector data	
-https://www.cse.lk/api/detailedTrades                                   Detailed Trades
-https://www.cse.lk/api/dailyMarketSummery                               Daily Market Summary
-https://www.cse.lk/api/companyChartDataByStock                              Company Chart Data By Stock 
+# Market Overview
+POST  https://www.cse.lk/api/marketStatus                                    Market open/close status (e.g. Regular Trading, Market Closed)
+POST  https://www.cse.lk/api/marketSummery                                   Market summary for the day (turnover, share volume, trades)
+POST  https://www.cse.lk/api/dailyMarketSummery                              Daily market summary (turnover, foreign/domestic split, PER, PBV, DY, indices)
+GET   https://www.cse.lk/api/lastUpdateTime                                  Timestamp of the last market data update
+GET   https://www.cse.lk/api/previousUpdateTime                              Previous trading date
+POST  https://www.cse.lk/api/cseDaily                                        CSE daily market reports (PDF paths on cdn.cse.lk)
+GET   https://www.cse.lk/api/cseDailyNew                                     Latest CSE daily market report
+POST  https://www.cse.lk/api/cseWeekly                                       CSE weekly market reports
+POST  https://www.cse.lk/api/cseMonthly                                      Latest CSE monthly market report
+POST  https://www.cse.lk/api/quarterlySummary                                CSE quarterly market reports
+
+# Securities & Trades
+POST  https://www.cse.lk/api/companyInfoSummery                              Detailed info of a single stock/security by symbol
+POST  https://www.cse.lk/api/homeCompanyData                                 Price snapshot of one security. The returned id is the stockId used by companyChartDataByStock
+POST  https://www.cse.lk/api/tradeSummary                                    Summary of trades for all securities
+POST  https://www.cse.lk/api/todaySharePrice                                 Today's share price data
+POST  https://www.cse.lk/api/detailedTrades                                  Detailed trades for all (or one) security
+POST  https://www.cse.lk/api/topGainers                                      Top gaining stocks
+POST  https://www.cse.lk/api/topLooses                                       Top losing stocks
+POST  https://www.cse.lk/api/mostActiveTrades                                Most active trades
+POST  https://www.cse.lk/api/mostActiveVolumes                               Most active securities by share volume
+POST  https://www.cse.lk/api/mostActiveVolPercentage                         Most active securities by volume percentage
+POST  https://www.cse.lk/api/chartData                                       Price chart points for a stock
+POST  https://www.cse.lk/api/companyChartDataByStock                         OHLC / trade chart data for a stock
+POST  https://www.cse.lk/api/list_by_market_cap                              All securities ranked by market capitalisation
+GET   https://www.cse.lk/api/cntSecurity                                     All securities with id, symbol and board id
+GET   https://www.cse.lk/api/allSecurityCode                                 All security codes with id and active flag
+GET   https://www.cse.lk/api/dailyShortSellTradeSummary                      Daily short-sell trade summary
+GET   https://www.cse.lk/api/sblBorrowingPool                                Securities borrowing & lending: borrowing pool
+GET   https://www.cse.lk/api/sblLendingPool                                  Securities borrowing & lending: lending pool
+
+# Trading Statistics
+POST  https://www.cse.lk/api/alphabetical                                    Trading statistics for securities starting with a letter
+POST  https://www.cse.lk/api/list_by_type                                    Trading statistics by issue type
+
+# Indices
+POST  https://www.cse.lk/api/aspiData                                        All Share Price Index (ASPI) value
+POST  https://www.cse.lk/api/snpData                                         S&P Sri Lanka 20 index value
+POST  https://www.cse.lk/api/aspi                                            ASPI constituents with price / turnover
+POST  https://www.cse.lk/api/aspi/year                                       Year-to-date ASPI, S&P SL20 and total-return values
+POST  https://www.cse.lk/api/spsl                                            S&P SL20 constituents
+POST  https://www.cse.lk/api/marketIndices                                   All sector / market indices
+POST  https://www.cse.lk/api/return_indices                                  Total return indices (TRI) for market and sectors
+GET   https://www.cse.lk/api/returnAspiSnp                                   ASPI / S&P SL20 return status flag
+POST  https://www.cse.lk/api/getContributors                                 Count of positive / negative ASPI contributors
+POST  https://www.cse.lk/api/getContributorsChart                            Top contributors to ASPI
+
+# Sectors & GICS
+POST  https://www.cse.lk/api/allSectors                                      Data for all sectors
+POST  https://www.cse.lk/api/listAllSectors                                  List of all sector indices
+POST  https://www.cse.lk/api/sector_list                                     Sector index list (GET also works)
+POST  https://www.cse.lk/api/listBySector                                    Companies in a sector, with trading data
+POST  https://www.cse.lk/api/52WeekSectors                                   52-week / YTD high and change for a sector, e.g. 52WeekSectors?sectorId=1
+POST  https://www.cse.lk/api/sectorHighLow                                   Daily open / high / low for a sector, e.g. sectorHighLow?sectorId=1
+POST  https://www.cse.lk/api/GICSSectors                                     GICS sectors
+POST  https://www.cse.lk/api/GICSSectorSummery                               GICS industry group summary (PER, PBV, turnover)
+POST  https://www.cse.lk/api/GICSIndustryGroup                               GICS industry groups in a GICS sector
+POST  https://www.cse.lk/api/gics_sector_companies                           Companies in a GICS industry group
+
+# Listed Entities & Boards
+POST  https://www.cse.lk/api/main_boards                                     Companies on the Main Board
+POST  https://www.cse.lk/api/secondBoard                                     Companies on the Second Board
+POST  https://www.cse.lk/api/divi_siri_board                                 Companies on the Diri Savi Board
+POST  https://www.cse.lk/api/empower_boards                                  Companies on the Empower Board
+POST  https://www.cse.lk/api/default_board                                   Companies on the Watch List (default board)
+POST  https://www.cse.lk/api/boardReason                                     Reason a security is on its board
+GET   https://www.cse.lk/api/listedEntitiesByTradingStatus                   Suspended / halted securities
+GET   https://www.cse.lk/api/deListedEntities                                De-listed entities
+GET   https://www.cse.lk/api/investorCompanies                               Investor relations companies and their advisors
+POST  https://www.cse.lk/api/getAllIssuers                                   All debt issuers
+GET   https://www.cse.lk/api/upcomingListings                                Upcoming listings / IPOs
+
+# Debt Market
+POST  https://www.cse.lk/api/debtTrades                                      Listed debt securities and trades
+POST  https://www.cse.lk/api/debtDetailTrades                                Debt market detailed trades
+
+# Announcements & Disclosures
+POST  https://www.cse.lk/api/approvedAnnouncement                            Approved announcements
+POST  https://www.cse.lk/api/getFinancialAnnouncement                        Financial announcements
+POST  https://www.cse.lk/api/getNewListingsRelatedNoticesAnnouncements       New listings and related announcements
+POST  https://www.cse.lk/api/getBuyInBoardAnnouncements                      Buy-in board announcements
+POST  https://www.cse.lk/api/getCOVIDAnnouncements                           COVID-related announcements
+POST  https://www.cse.lk/api/getNonComplianceAnnouncements                   Non-compliance announcements
+POST  https://www.cse.lk/api/circularAnnouncement                            Circular announcements
+POST  https://www.cse.lk/api/directiveAnnouncement                           Directive announcements
+GET   https://www.cse.lk/api/corporateAnnouncementCategory                   Corporate announcement categories
+POST  https://www.cse.lk/api/getAnnouncementById                             Full details of an approved announcement
+POST  https://www.cse.lk/api/getGeneralAnnouncementById                      Full details of a general announcement
+POST  https://www.cse.lk/api/smd                                             Stock market disclosures, grouped by category
+GET   https://www.cse.lk/api/smd/categories                                  SMD category names
+POST  https://www.cse.lk/api/corporateCalender                               Corporate action calendar
+POST  https://www.cse.lk/api/getAgmEgmEvents                                 AGM / EGM events
+POST  https://www.cse.lk/api/cseCircular                                     CSE circulars for a year
+POST  https://www.cse.lk/api/secDirective                                    SEC directives for a year
+GET   https://www.cse.lk/api/ruleBooks/web/list                              Rule books grouped by heading, e.g. ruleBooks/web/list?ruleType=1
+
+# News, Events & Content
+GET   https://www.cse.lk/api/news/web                                        News (CN = CSE news, BN = company news, MR = market reviews)
+GET   https://www.cse.lk/api/events                                          Events grouped by month
+GET   https://www.cse.lk/api/events/top                                      Latest events
+GET   https://www.cse.lk/api/events/{id}                                     Single event with body and images
+GET   https://www.cse.lk/api/banners                                         Website banners
+GET   https://www.cse.lk/api/branchOffices                                   Broker branch offices
+GET   https://www.cse.lk/api/careers                                         CSE career vacancies
+GET   https://www.cse.lk/api/members                                         Member firms
+GET   https://www.cse.lk/api/tradingMembers                                  Trading members
+GET   https://www.cse.lk/api/localSeminars                                   Investor education seminars
+GET   https://www.cse.lk/api/local/courses                                   CSE Academy courses
+GET   https://www.cse.lk/api/educationalVideos                               Educational videos
